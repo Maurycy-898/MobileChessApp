@@ -21,8 +21,7 @@ class ArchiveFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val archiveViewModel =
-            ViewModelProvider(this).get(ArchiveViewModel::class.java)
+        val archiveViewModel = ViewModelProvider(this).get(ArchiveViewModel::class.java)
 
         _binding = FragmentArchiveBinding.inflate(inflater, container, false)
         val root: View = binding.root

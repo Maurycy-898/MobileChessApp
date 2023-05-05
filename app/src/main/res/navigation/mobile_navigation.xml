@@ -14,7 +14,7 @@
     <fragment
         android:id="@+id/navigation_archive"
         android:name="com.mobile.chessapp.ui.archive.ArchiveFragment"
-        android:label="@string/title_dashboard"
+        android:label="@string/title_archive"
         tools:layout="@layout/fragment_archive" />
 
     <fragment
@@ -26,6 +26,7 @@
     <fragment
         android:id="@+id/navigation_dashboard"
         android:name="com.mobile.chessapp.ui.dashboard.DashboardFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        android:label="@string/title_dashboard"
+        tools:layout="@layout/fragment_dashboard" />
+
 </navigation>
