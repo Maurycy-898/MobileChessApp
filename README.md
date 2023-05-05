@@ -1,4 +1,6 @@
 # MobileChessApp
+
+Creators
 - author: Maurycy Sosnowski
 - author: Wojciech Gabryelski
 
