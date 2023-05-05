@@ -1,6 +1,6 @@
 # MobileChessApp
-# author: Maurycy Sosnowski
-# author: Wojciech Gabryelski
+- author: Maurycy Sosnowski
+- author: Wojciech Gabryelski
 
 Description:
 - A simple mobile chess-app project,
