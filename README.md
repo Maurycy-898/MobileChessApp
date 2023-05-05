@@ -3,7 +3,7 @@
 # author: Wojciech Gabryelski
 
 Description:
-A simple mobile chess-app project,
+- A simple mobile chess-app project,
 made for mobile app development course on PWR.
 
 Technologies used:
