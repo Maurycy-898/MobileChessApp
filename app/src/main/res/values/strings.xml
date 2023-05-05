@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">MobileChessApp</string>
+    <string name="title_home">Home</string>
+    <string name="title_archive">Archive</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_dashboard">More</string>
+</resources>
