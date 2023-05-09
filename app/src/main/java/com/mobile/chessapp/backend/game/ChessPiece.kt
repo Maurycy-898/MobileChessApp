@@ -1,5 +1,3 @@
 package com.mobile.chessapp.backend.game
 
-class ChessPiece {
-    // TODO ...
-}
+class ChessPiece(var color: PieceColor, var type: PieceType)
