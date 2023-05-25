@@ -9,9 +9,13 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.widget.TextViewCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.mobile.chessapp.backend.game.ChessBoard
+import com.mobile.chessapp.backend.game.boardUtils.ChessBoard
 
-class BoardAdapter(private var chessBoard: ChessBoard, private val mContext: Context) : RecyclerView.Adapter<BoardAdapter.ViewHolder>() {
+class BoardAdapter(
+    private var chessBoard: ChessBoard,
+    private val mContext: Context
+    ) : RecyclerView.Adapter<BoardAdapter.ViewHolder>() {
+
     private val pieces = listOf(listOf("", "♟", "♞", "♝", "♜", "♛", "♚"), listOf("", "♙", "♘", "♗", "♖", "♕", "♔"))
 
     class ViewHolder(view : View) : RecyclerView.ViewHolder(view)
@@ -24,9 +28,7 @@ class BoardAdapter(private var chessBoard: ChessBoard, private val mContext: Con
         return ViewHolder(view)
     }
 
-    override fun getItemCount(): Int {
-        return 64
-    }
+    override fun getItemCount(): Int { return 64 }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         var xPos = position % 8
@@ -39,7 +41,8 @@ class BoardAdapter(private var chessBoard: ChessBoard, private val mContext: Con
         } else {
             holder.itemView.setBackgroundColor(Color.parseColor("#964B00"))
         }
-        val chessPiece = chessBoard.board[xPos][yPos]
-        (holder.itemView as TextView).text = pieces[chessPiece.color.ordinal][chessPiece.type.ordinal]
+        val chessPiece = chessBoard.fields[xPos][yPos]
+        if (chessPiece != null)
+            (holder.itemView as TextView).text = pieces[chessPiece.color.ordinal][chessPiece.type.ordinal]
     }
 }

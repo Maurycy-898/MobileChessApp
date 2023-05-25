@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mobile.chessapp.R
-import com.mobile.chessapp.backend.game.ChessBoard
+import com.mobile.chessapp.backend.game.boardUtils.ChessBoard
 
 class GameActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
