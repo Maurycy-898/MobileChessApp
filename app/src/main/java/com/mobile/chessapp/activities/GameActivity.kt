@@ -2,6 +2,7 @@ package com.mobile.chessapp.activities
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,7 +25,7 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
         recyclerView = findViewById(R.id.board)
 
         // TODO: chess game based on how it was called
-        chessGame = ChessGame(ChessBoard(), GameMode.OFFLINE)
+        chessGame = ChessGame(ChessBoard(), GameMode.ENGINE)
 
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             recyclerView.layoutManager = GridLayoutManager(
@@ -38,9 +39,20 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
     }
 
     override fun onFieldClick(col: Int, row: Int) {
-        chessGame.onFieldClick(col, row)
-        boardAdapter.notifyDataSetChanged()
+        if (chessGame.board.isGameOver) {
+            onGameOver()
+        } else {
+            chessGame.onFieldClick(col, row)
+            boardAdapter.notifyDataSetChanged()
+        }
+    }
+
+    private fun onGameOver() {
+        if (chessGame.board.blackKingAttacked) {
+            Toast.makeText(this, "GAME OVER, WHITE WON!!!", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "GAME OVER, BLACK WON!!!", Toast.LENGTH_SHORT).show()
+        }
     }
 }
-
 

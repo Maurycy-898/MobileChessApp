@@ -34,7 +34,7 @@ class ChessBoard {
 
 
     fun doMove(move: ChessMove) {
-        val movedPiece: ChessPiece = fields[move.beginCol][move.beginRow]!!
+        val movedPiece: ChessPiece? = fields[move.beginCol][move.beginRow]
 
         move.savedEnPassantPossible = enPassantPossible
         move.savedEnPassantTargetCol = enPassantTargetCol
@@ -57,7 +57,7 @@ class ChessBoard {
         if (move is PromotionMove) {
             fields[move.beginCol][move.beginRow] = null
             move.takenPiece = fields[move.endCol][move.endRow]
-            fields[move.endCol][move.endRow] = ChessPiece(move.newPiece, movedPiece.color)
+            fields[move.endCol][move.endRow] = ChessPiece(move.newPiece, movedPiece!!.color)
         }
         else if (move is EnPassantMove) {
             fields[move.beginCol][move.beginRow] = null
@@ -66,6 +66,7 @@ class ChessBoard {
             move.takenPiece = fields[move.endCol][move.beginRow]
         }
         else if (move is CastlingMove) {
+            println("Castling ... ")
             if (move.endCol == 2 && move.endRow == 0) {
                 fields[0][0] = null; fields[4][0] = null
                 fields[3][0] = ChessPiece(PieceType.ROOK, PieceColor.WHITE)
@@ -110,25 +111,25 @@ class ChessBoard {
             blackKingsideCastling = false
         }
 
-        if (movedPiece.type == PieceType.KING && movedPiece.color == PieceColor.WHITE) {
+        if (movedPiece?.type == PieceType.KING && movedPiece.color == PieceColor.WHITE) {
             whiteKingsideCastling = false
             whiteQueensideCastling = false
             whiteKingCol = move.endCol
             whiteKingRow = move.endRow
         }
-        else if(movedPiece.type == PieceType.KING && movedPiece.color == PieceColor.BLACK) {
+        else if(movedPiece?.type == PieceType.KING && movedPiece.color == PieceColor.BLACK) {
             blackKingsideCastling = false
             blackQueensideCastling = false
             blackKingCol = move.endCol
             blackKingRow = move.endRow
         }
 
-        if (movedPiece.type == PieceType.PAWN && movedPiece.color == PieceColor.WHITE && move.endRow - move.beginRow == 2) {
+        if (movedPiece?.type == PieceType.PAWN && movedPiece.color == PieceColor.WHITE && move.endRow - move.beginRow == 2) {
             enPassantPossible = true
             enPassantTargetCol = move.beginCol
             enPassantTargetRow = move.beginRow+1
         }
-        else if (movedPiece.type == PieceType.PAWN && movedPiece.color == PieceColor.BLACK && move.endRow - move.beginRow == -2) {
+        else if (movedPiece?.type == PieceType.PAWN && movedPiece.color == PieceColor.BLACK && move.endRow - move.beginRow == -2) {
             enPassantPossible = true
             enPassantTargetCol = move.beginCol
             enPassantTargetRow = move.beginRow-1

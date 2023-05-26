@@ -8,7 +8,7 @@ import com.mobile.chessapp.backend.game.moveUtils.MoveGenerator
 data class Evaluation(val bestMove: ChessMove?, val positionScore: Int)
 
 object ChessEngine {
-    fun findBestMove(board: ChessBoard, depth: Int = 4) : Evaluation {
+    fun findBestMove(board: ChessBoard, depth: Int = 3) : Evaluation {
         return alfaBeta(board, alfa = LOSING_SCORE, beta = WINNING_SCORE, depth)
     }
 
@@ -16,12 +16,11 @@ object ChessEngine {
         if (depth == 0) {
             return Evaluation(bestMove = null, (board.activeColor.colorFactor*evaluate(board)))
         }
-
         var score: Int
         var bestScore = Int.MIN_VALUE
         var bestMove: ChessMove? = null
-        val moves: List<ChessMove> = MoveGenerator.generateMoves(board)
 
+        val moves: List<ChessMove> = MoveGenerator.generateMoves(board)
         if (moves.isEmpty()) {
             if (board.blackKingAttacked) return Evaluation(bestMove = null, LOSING_SCORE)
             if (board.whiteKingAttacked) return Evaluation(bestMove = null, WINNING_SCORE)

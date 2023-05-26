@@ -1,5 +1,6 @@
 package com.mobile.chessapp.backend.game
 
+import android.widget.Toast
 import com.mobile.chessapp.backend.game.boardUtils.BOARD_SIZE
 import com.mobile.chessapp.backend.game.boardUtils.ChessBoard
 import com.mobile.chessapp.backend.game.boardUtils.PieceColor
@@ -27,7 +28,9 @@ class ChessGame (
     private var gameEnded: Boolean = false
 
     var boardUI: BoardUI = BoardUI(playerColor, board)
-    private var possibleMovesMap = Array(BOARD_SIZE) { Array(BOARD_SIZE) { false } }
+    private var possibleMovesMap = Array(BOARD_SIZE) {
+        Array<ChessMove?>(BOARD_SIZE) { null }
+    }
 
     init {
         if (gameMode == GameMode.ENGINE) onEngineMove()
@@ -52,13 +55,13 @@ class ChessGame (
 
             val moves = MoveGenerator.generateMoves(board, col, row)
             for (move in moves) {
-                possibleMovesMap[move.endCol][move.endRow] = true
+                possibleMovesMap[move.endCol][move.endRow] = move
                 boardUI.fields[move.endCol][move.endRow].prompted = true
             }
         }
         else if (clickCount == 2) { // make move
-            if (possibleMovesMap[col][row]) {
-                val moveMade = ChessMove(prevCol, prevRow, col, row)
+            if (possibleMovesMap[col][row] != null) {
+                val moveMade = possibleMovesMap[col][row]!!
                 board.doMove(moveMade)
                 moveArchive.add(moveMade)
                 boardUI.updateFields(board)
@@ -78,17 +81,19 @@ class ChessGame (
 
             val moves = MoveGenerator.generateMoves(board, col, row)
             for (move in moves) {
-                possibleMovesMap[move.endCol][move.endRow] = true
+                possibleMovesMap[move.endCol][move.endRow] = move
                 boardUI.fields[move.endCol][move.endRow].prompted = true
             }
         }
         else if (clickCount == 2) { // make move
-            if (possibleMovesMap[col][row]) {
-                board.doMove(ChessMove(prevCol, prevRow, col, row))
+            if (possibleMovesMap[col][row] != null) {
+                val moveMade = possibleMovesMap[col][row]!!
+                board.doMove(moveMade)
+                moveArchive.add(moveMade)
                 boardUI.updateFields(board)
                 onEngineMove() // engine makes its move
             }
-            onCancel()
+            onCancel(); return
         }
     }
 
@@ -114,7 +119,7 @@ class ChessGame (
         prevCol = NOT_CLICKED
         prevRow = NOT_CLICKED
         for (i in 0 until BOARD_SIZE) for (j in 0 until BOARD_SIZE) {
-            possibleMovesMap[i][j] = false
+            possibleMovesMap[i][j] = null
         }
         boardUI.updateFields(board)
     }
