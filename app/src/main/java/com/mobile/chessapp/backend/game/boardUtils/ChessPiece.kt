@@ -12,8 +12,8 @@ enum class PieceColor(val colorFactor: Int) {
 }
 
 enum class PieceType(val pieceValue: Int) {
-    KING(pieceValue = 1000000), PAWN(pieceValue = 100),
-    KNIGHT(pieceValue = 320),   BISHOP(pieceValue = 330),
-    ROOK(pieceValue = 500),     QUEEN(pieceValue = 900)
+    PAWN(pieceValue = 100),   KNIGHT(pieceValue = 320),
+    BISHOP(pieceValue = 330), ROOK(pieceValue = 500),
+    QUEEN(pieceValue = 900),  KING(pieceValue = 1000000)
 
 }

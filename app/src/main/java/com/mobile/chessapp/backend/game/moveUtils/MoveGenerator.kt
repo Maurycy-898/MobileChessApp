@@ -8,22 +8,19 @@ import java.util.*
 
 object MoveGenerator {
     private var board: ChessBoard = ChessBoard()
-    private var oppAttacks: MutableList<Move> = LinkedList()
-    private var playerColor = PieceColor.WHITE
     private var oppColor = PieceColor.BLACK
+    private var playerColor = PieceColor.WHITE
 
 
     /**
      * generates all possible moves in given position for active player
      */
-    fun generateMoves(board: ChessBoard) : LinkedList<Move> {
+    fun generateMoves(board: ChessBoard) : LinkedList<ChessMove> {
         generatorSetup(board)
-        val possibleMoves: LinkedList<Move> = LinkedList()
+        val possibleMoves: LinkedList<ChessMove> = LinkedList()
 
         for (i in 0..7) for (j in 0..7) {
-            if (hasColor(i, j, playerColor)) {
-                continue
-            }
+            if (!isColor(i, j, playerColor)) { continue }
             when (board.fields[i][j]?.type) {
                 PieceType.PAWN   -> addPawnMoves(i, j, playerColor, possibleMoves)
                 PieceType.KNIGHT -> addKnightMoves(i, j, playerColor, possibleMoves)
@@ -35,28 +32,21 @@ object MoveGenerator {
             }
         }
 
-        var kingCol = 0
-        var kingRow = 0
-
-        val illegalMoves: LinkedList<Move> = LinkedList()
+        val originalColor = playerColor
+        val illegalMoves: LinkedList<ChessMove> = LinkedList()
         for (move in possibleMoves) {
             board.doMove(move)
-            for (i in 0..7) for (j in 0..7) {
-                if (!freeSquare(i, j) // find king
-                    && board.fields[i][j]!!.color == playerColor
-                    && board.fields[i][j]!!.type  == PieceType.KING
-                ) {
-                    kingCol = i
-                    kingRow = j
-                }
-            }
-            if (isSquareAttacked(kingCol, kingRow)) {
+            if (attacked(board.getKingCol(originalColor), board.getKingRow(originalColor), originalColor)) {
                 illegalMoves.add(move)
             }
             board.undoMove(move)
         }
 
         possibleMoves.removeAll(illegalMoves)
+        if (possibleMoves.isEmpty()) {
+            board.isGameOver = true
+        }
+
         return possibleMoves
     }
 
@@ -64,65 +54,34 @@ object MoveGenerator {
     /**
      * generates all legal moves for given (row, col) position for active player
      */
-    fun generateMoves(board: ChessBoard, col: Int, row: Int) : LinkedList<Move> {
-        generatorSetup(board)
-        val possibleMoves: LinkedList<Move> = LinkedList()
-        if (!hasColor(col, row, playerColor)) return possibleMoves
-
-        when (board.fields[col][row]?.type) {
-            PieceType.PAWN   -> addPawnMoves(col, row, playerColor, possibleMoves)
-            PieceType.KNIGHT -> addKnightMoves(col, row, playerColor, possibleMoves)
-            PieceType.BISHOP -> addBishopMoves(col, row, playerColor, possibleMoves)
-            PieceType.ROOK   -> addRookMoves(col, row, playerColor, possibleMoves)
-            PieceType.QUEEN  -> addQueenMoves(col, row, playerColor, possibleMoves)
-            PieceType.KING   -> addKingMoves(col, row, playerColor, possibleMoves)
-            else -> { /* do nothing- empty field */ }
-        }
-
-        var kingCol = 0
-        var kingRow = 0
-
-        val illegalMoves: LinkedList<Move> = LinkedList()
-        for (move in possibleMoves) {
-            board.doMove(move)
-            for (i in 0..7) for (j in 0..7) {
-                if (!freeSquare(i, j) // find king
-                    && board.fields[i][j]!!.color == playerColor
-                    && board.fields[i][j]!!.type  == PieceType.KING
-                ) {
-                    kingCol = i
-                    kingRow = j
-                }
+    fun generateMoves(board: ChessBoard, col: Int, row: Int) : LinkedList<ChessMove> {
+        println("${board.activeColor}\n ${board.whiteKingCol}, ${board.whiteKingRow}\n ${board.blackKingCol}, ${board.blackKingRow}")
+        return generateMoves(board).apply {
+            this.removeIf {
+                (it.beginCol != col) || (it.beginRow != row)
             }
-            if (isSquareAttacked(kingCol, kingRow)) {
-                illegalMoves.add(move)
-            }
-            board.undoMove(move)
         }
-
-        possibleMoves.removeAll(illegalMoves)
-        return possibleMoves
     }
 
 
     //-------------------------------------- UTILITY METHODS ---------------------------------------
+    /**
+     * Sets all variables used in this generator
+     */
     fun generatorSetup(board: ChessBoard) {
         this.board = board
         this.playerColor = board.activeColor
         this.oppColor = opponentColor(board.activeColor)
-        this.oppAttacks = getAttackingMoves(oppColor)
     }
 
 
     /**
      * all moves that attack some field (used to keep track if opponent attacks it)
      */
-    private fun getAttackingMoves(color: PieceColor) : MutableList<Move> {
-        val attackingMoves = LinkedList<Move>()
+    private fun getAttackingMoves(color: PieceColor) : MutableList<ChessMove> {
+        val attackingMoves = LinkedList<ChessMove>()
         for (i in 0..7) for (j in 0..7) {
-            if (!hasColor(i, j, color)) {
-                continue
-            }
+            if (!isColor(i, j, color)) { continue }
             when (board.fields[i][j]?.type) {
                 PieceType.PAWN   -> addPawnAttackingMoves(i, j, color, attackingMoves)
                 PieceType.KNIGHT -> addKnightMoves(i, j, color, attackingMoves)
@@ -140,7 +99,8 @@ object MoveGenerator {
     /**
      * Checks if given square is attacked by pieces of given color
      * */
-    fun isSquareAttacked(col: Int, row: Int) : Boolean {
+    fun attacked(col: Int, row: Int, color: PieceColor = playerColor) : Boolean {
+        val oppAttacks = getAttackingMoves(opponentColor(color))
         for (move in oppAttacks) {
             if (move.endCol == col && move.endRow == row) return true
         }
@@ -152,7 +112,7 @@ object MoveGenerator {
      * returns an opposite color to the one we provided
      */
     private fun opponentColor(color: PieceColor) : PieceColor {
-        return if (color === PieceColor.BLACK) { PieceColor.WHITE } else { PieceColor.BLACK }
+        return if (color == PieceColor.BLACK) { PieceColor.WHITE } else { PieceColor.BLACK }
     }
 
 
@@ -167,7 +127,7 @@ object MoveGenerator {
     /**
      * checks if given board field is free (there is no piece here)
      */
-    private fun freeSquare(col: Int, row: Int): Boolean {
+    private fun free(col: Int, row: Int): Boolean {
         return board.fields[col][row] == null
     }
 
@@ -175,7 +135,7 @@ object MoveGenerator {
     /**
      * checks if piece on given square has expected color
      */
-    private fun hasColor(col: Int, row: Int, color: PieceColor): Boolean {
+    private fun isColor(col: Int, row: Int, color: PieceColor): Boolean {
         return if (board.fields[col][row] == null) { false }
             else { board.fields[col][row]?.color == color }
     }
@@ -192,27 +152,27 @@ object MoveGenerator {
 
 
     //----------------------------------- PIECE MOVES GENERATION -----------------------------------
-    private fun addPawnMoves(col: Int, row: Int, color: PieceColor, moves: MutableList<Move>) {
+    private fun addPawnMoves(col: Int, row: Int, color: PieceColor, moves: MutableList<ChessMove>) {
         val oppColor = opponentColor(color)
         if (color == PieceColor.WHITE) {
-            if (onChessboard(col, row + 1) && freeSquare(col, row + 1)) {
+            if (onChessboard(col, row + 1) && free(col, row + 1)) {
                 if (row + 1 == 7) {
                     moves.add(PromotionMove(col, row, col, row + 1, PieceType.ROOK))
                     moves.add(PromotionMove(col, row, col, row + 1, PieceType.KNIGHT))
                     moves.add(PromotionMove(col, row, col, row + 1, PieceType.BISHOP))
                     moves.add(PromotionMove(col, row, col, row + 1, PieceType.QUEEN))
-                } else { moves.add(Move(col, row, col, row + 1)) }
+                } else { moves.add(ChessMove(col, row, col, row + 1)) }
             }
 
             if (row == 1 && onChessboard(col, row + 2)
-                && freeSquare(col, row + 2)
-                && freeSquare(col, row + 1)
+                && free(col, row + 2)
+                && free(col, row + 1)
             ) {
-                moves.add(Move(col, row, col, row + 2))
+                moves.add(ChessMove(col, row, col, row + 2))
             }
 
             if (onChessboard(col + 1, row + 1)
-                && !freeSquare(col + 1, row + 1)
+                && !free(col + 1, row + 1)
                 && board.fields[col + 1][row + 1]!!.color == oppColor
             ) {
                 if (row + 1 == 7) {
@@ -220,11 +180,11 @@ object MoveGenerator {
                     moves.add(PromotionMove(col, row, col + 1, row + 1, PieceType.ROOK))
                     moves.add(PromotionMove(col, row, col + 1, row + 1, PieceType.KNIGHT))
                     moves.add(PromotionMove(col, row, col + 1, row + 1, PieceType.BISHOP))
-                } else { moves.add(Move(col, row, col + 1, row + 1)) }
+                } else { moves.add(ChessMove(col, row, col + 1, row + 1)) }
             }
 
             if (onChessboard(col - 1, row + 1)
-                && !freeSquare(col - 1, row + 1)
+                && !free(col - 1, row + 1)
                 && board.fields[col - 1][row + 1]!!.color == oppColor
             ) {
                 if (row + 1 == 7) {
@@ -232,7 +192,7 @@ object MoveGenerator {
                     moves.add(PromotionMove(col, row, col - 1, row + 1, PieceType.ROOK))
                     moves.add(PromotionMove(col, row, col - 1, row + 1, PieceType.KNIGHT))
                     moves.add(PromotionMove(col, row, col - 1, row + 1, PieceType.BISHOP))
-                } else { moves.add(Move(col, row, col - 1, row + 1)) }
+                } else { moves.add(ChessMove(col, row, col - 1, row + 1)) }
             }
 
             if (board.enPassantPossible && row == 4 && board.enPassantTargetCol == col + 1) {
@@ -243,24 +203,24 @@ object MoveGenerator {
             }
 
         } else { // PieceColor == BLACK
-            if (onChessboard(col, row - 1) && freeSquare(col, row - 1)) {
+            if (onChessboard(col, row - 1) && free(col, row - 1)) {
                 if (row - 1 == 0) {
                     moves.add(PromotionMove(col, row, col, 0, PieceType.ROOK))
                     moves.add(PromotionMove(col, row, col, 0, PieceType.KNIGHT))
                     moves.add(PromotionMove(col, row, col, 0, PieceType.BISHOP))
                     moves.add(PromotionMove(col, row, col, 0, PieceType.QUEEN))
-                } else { moves.add(Move(col, row, col, row - 1)) }
+                } else { moves.add(ChessMove(col, row, col, row - 1)) }
             }
 
             if (row == 6 && onChessboard(col, row - 2)
-                && freeSquare(col, row - 2)
-                && freeSquare(col, row - 1)
+                && free(col, row - 2)
+                && free(col, row - 1)
             ) {
-                moves.add(Move(col, row, col, row - 2))
+                moves.add(ChessMove(col, row, col, row - 2))
             }
 
             if (onChessboard(col + 1, row - 1)
-                && !freeSquare(col + 1, row - 1)
+                && !free(col + 1, row - 1)
                 && board.fields[col + 1][row - 1]!!.color == oppColor) {
 
                 if (row - 1 == 0) {
@@ -268,11 +228,11 @@ object MoveGenerator {
                     moves.add(PromotionMove(col, row, col + 1, 0, PieceType.KNIGHT))
                     moves.add(PromotionMove(col, row, col + 1, 0, PieceType.BISHOP))
                     moves.add(PromotionMove(col, row, col + 1, 0, PieceType.QUEEN))
-                } else { moves.add(Move(col, row, col + 1, row - 1)) }
+                } else { moves.add(ChessMove(col, row, col + 1, row - 1)) }
             }
 
             if (onChessboard(col - 1, row - 1)
-                && !freeSquare(col - 1, row - 1)
+                && !free(col - 1, row - 1)
                 && board.fields[col - 1][row - 1]!!.color === oppColor
             ) {
                 if (row - 1 == 0) {
@@ -280,7 +240,7 @@ object MoveGenerator {
                     moves.add(PromotionMove(col, row, col - 1, 0, PieceType.KNIGHT))
                     moves.add(PromotionMove(col, row, col - 1, 0, PieceType.BISHOP))
                     moves.add(PromotionMove(col, row, col - 1, 0, PieceType.QUEEN))
-                } else { moves.add(Move(col, row, col - 1, row - 1)) }
+                } else { moves.add(ChessMove(col, row, col - 1, row - 1)) }
             }
 
 
@@ -294,138 +254,138 @@ object MoveGenerator {
     }
 
 
-    private fun addKnightMoves(col: Int, row: Int, color: PieceColor, moves: MutableList<Move>) {
+    private fun addKnightMoves(col: Int, row: Int, color: PieceColor, moves: MutableList<ChessMove>) {
         val oppColor = opponentColor(color)
         if (onChessboard(col + 2, row + 1) && freeOrColor(col + 2, row + 1, oppColor)) {
-            moves.add(Move(col, row, col + 2, row + 1))
+            moves.add(ChessMove(col, row, col + 2, row + 1))
         }
         if (onChessboard(col + 2, row - 1) && freeOrColor(col + 2, row - 1, oppColor)) {
-            moves.add(Move(col, row, col + 2, row - 1))
+            moves.add(ChessMove(col, row, col + 2, row - 1))
         }
         if (onChessboard(col - 2, row + 1) && freeOrColor(col - 2, row + 1, oppColor)) {
-            moves.add(Move(col, row, col - 2, row + 1))
+            moves.add(ChessMove(col, row, col - 2, row + 1))
         }
         if (onChessboard(col - 2, row - 1) && freeOrColor(col - 2, row - 1, oppColor)) {
-            moves.add(Move(col, row, col - 2, row - 1))
+            moves.add(ChessMove(col, row, col - 2, row - 1))
         }
         if (onChessboard(col + 1, row + 2) && freeOrColor(col + 1, row + 2, oppColor)) {
-            moves.add(Move(col, row, col + 1, row + 2))
+            moves.add(ChessMove(col, row, col + 1, row + 2))
         }
         if (onChessboard(col + 1, row - 2) && freeOrColor(col + 1, row - 2, oppColor)) {
-            moves.add(Move(col, row, col + 1, row - 2))
+            moves.add(ChessMove(col, row, col + 1, row - 2))
         }
         if (onChessboard(col - 1, row + 2) && freeOrColor(col - 1, row + 2, oppColor)) {
-            moves.add(Move(col, row, col - 1, row + 2))
+            moves.add(ChessMove(col, row, col - 1, row + 2))
         }
         if (onChessboard(col - 1, row - 2) && freeOrColor(col - 1, row - 2, oppColor)) {
-            moves.add(Move(col, row, col - 1, row - 2))
+            moves.add(ChessMove(col, row, col - 1, row - 2))
         }
     }
 
 
-    private fun addBishopMoves(col: Int, row: Int, color: PieceColor, moves: MutableList<Move>) {
+    private fun addBishopMoves(col: Int, row: Int, color: PieceColor, moves: MutableList<ChessMove>) {
         val oppColor = opponentColor(color)
         var i = 1
-        while (onChessboard(col + i, row + i) && freeSquare(col + i, row + i)) {
-            moves.add(Move(col, row, col + i, row + i)); i++
+        while (onChessboard(col + i, row + i) && free(col + i, row + i)) {
+            moves.add(ChessMove(col, row, col + i, row + i)); i++
         }
         if (onChessboard(col + i, row + i)) {
             if (board.fields[col + i][row + i]!!.color == oppColor)
-                moves.add(Move(col, row, col + i, row + i))
+                moves.add(ChessMove(col, row, col + i, row + i))
         }
 
         i = 1
-        while (onChessboard(col - i, row + i) && freeSquare(col - i, row + i)) {
-            moves.add(Move(col, row, col - i, row + i)); i++
+        while (onChessboard(col - i, row + i) && free(col - i, row + i)) {
+            moves.add(ChessMove(col, row, col - i, row + i)); i++
         }
         if (onChessboard(col - i, row + i)) {
             if (board.fields[col - i][row + i]!!.color == oppColor)
-                moves.add(Move(col, row, col - i, row + i))
+                moves.add(ChessMove(col, row, col - i, row + i))
         }
 
         i = 1
-        while (onChessboard(col + i, row - i) && freeSquare(col + i, row - i)) {
-            moves.add(Move(col, row, col + i, row - i)); i++
+        while (onChessboard(col + i, row - i) && free(col + i, row - i)) {
+            moves.add(ChessMove(col, row, col + i, row - i)); i++
         }
         if (onChessboard(col + i, row - i)) {
             if (board.fields[col + i][row - i]!!.color == oppColor)
-                moves.add(Move(col, row, col + i, row - i))
+                moves.add(ChessMove(col, row, col + i, row - i))
         }
 
         i = 1
-        while (onChessboard(col - i, row - i) && freeSquare(col - i, row - i)) {
-            moves.add(Move(col, row, col - i, row - i)); i++
+        while (onChessboard(col - i, row - i) && free(col - i, row - i)) {
+            moves.add(ChessMove(col, row, col - i, row - i)); i++
         }
         if (onChessboard(col - i, row - i)) {
             if (board.fields[col - i][row - i]!!.color == oppColor)
-                moves.add(Move(col, row, col - i, row - i))
+                moves.add(ChessMove(col, row, col - i, row - i))
         }
     }
 
 
-    private fun addRookMoves(col: Int, row: Int, color: PieceColor, moves: MutableList<Move>) {
+    private fun addRookMoves(col: Int, row: Int, color: PieceColor, moves: MutableList<ChessMove>) {
         val oppColor = opponentColor(color)
         var i = 1
-        while (onChessboard(col + i, row) && freeSquare(col + i, row)) {
-            moves.add(Move(col, row, col + i, row)); i++
+        while (onChessboard(col + i, row) && free(col + i, row)) {
+            moves.add(ChessMove(col, row, col + i, row)); i++
         }
         if (onChessboard(col + i, row)) {
             if (board.fields[col + i][row]!!.color == oppColor) {
-                moves.add(Move(col, row, col + i, row))
+                moves.add(ChessMove(col, row, col + i, row))
             }
         }
 
         i = 1
-        while (onChessboard(col - i, row) && freeSquare(col - i, row)) {
-            moves.add(Move(col, row, col - i, row)); i++
+        while (onChessboard(col - i, row) && free(col - i, row)) {
+            moves.add(ChessMove(col, row, col - i, row)); i++
         }
         if (onChessboard(col - i, row)) {
             if (board.fields[col - i][row]!!.color == oppColor) {
-                moves.add(Move(col, row, col - i, row))
+                moves.add(ChessMove(col, row, col - i, row))
             }
         }
 
         i = 1
-        while (onChessboard(col, row + i) && freeSquare(col, row + i)) {
-            moves.add(Move(col, row, col, row + i)); i++
+        while (onChessboard(col, row + i) && free(col, row + i)) {
+            moves.add(ChessMove(col, row, col, row + i)); i++
         }
         if (onChessboard(col, row + i)) {
             if (board.fields[col][row + i]!!.color === oppColor) {
-                moves.add(Move(col, row, col, row + i))
+                moves.add(ChessMove(col, row, col, row + i))
             }
         }
 
         i = 1
-        while (onChessboard(col, row - i) && freeSquare(col, row - i)) {
-            moves.add(Move(col, row, col, row - i)); i++
+        while (onChessboard(col, row - i) && free(col, row - i)) {
+            moves.add(ChessMove(col, row, col, row - i)); i++
         }
         if (onChessboard(col, row - i)) {
             if (board.fields[col][row - i]!!.color === oppColor) {
-                moves.add(Move(col, row, col, row - i))
+                moves.add(ChessMove(col, row, col, row - i))
             }
         }
     }
 
 
-    private fun addQueenMoves(col: Int, row: Int, color: PieceColor, moves: MutableList<Move>) {
+    private fun addQueenMoves(col: Int, row: Int, color: PieceColor, moves: MutableList<ChessMove>) {
         addRookMoves(col, row, color, moves)
         addBishopMoves(col, row, color, moves)
     }
 
 
-    private fun addKingMoves(col: Int, row: Int, color: PieceColor, moves: MutableList<Move>) {
+    private fun addKingMoves(col: Int, row: Int, color: PieceColor, moves: MutableList<ChessMove>) {
         addKingAttackingMoves(col, row, color, moves) // add 'normal' moves
         // add / handle castling moves
         if (color === PieceColor.WHITE) {
             if (board.whiteKingsideCastling
                 && board.fields[7][0]?.color == PieceColor.WHITE
                 && board.fields[7][0]?.type == PieceType.ROOK
-                && freeSquare(5, 0)
-                && freeSquare(6, 0)
+                && free(5, 0)
+                && free(6, 0)
             ) {
-                if (!isSquareAttacked(4, 0)
-                    && !isSquareAttacked(5, 0)
-                    && !isSquareAttacked(6, 0)
+                if (!attacked(4, 0)
+                    && !attacked(5, 0)
+                    && !attacked(6, 0)
                 ) {
                     moves.add(CastlingMove(4, 0, 6, 0))
                 }
@@ -433,13 +393,13 @@ object MoveGenerator {
             if (board.whiteQueensideCastling
                 && board.fields[0][0]?.color == PieceColor.WHITE
                 && board.fields[0][0]?.type  == PieceType.ROOK
-                && freeSquare(1, 0)
-                && freeSquare(2, 0)
-                && freeSquare(3, 0)
+                && free(1, 0)
+                && free(2, 0)
+                && free(3, 0)
             ) {
-                if (!isSquareAttacked(4, 0)
-                    && !isSquareAttacked(2, 0)
-                    && !isSquareAttacked(3, 0)
+                if (!attacked(4, 0)
+                    && !attacked(2, 0)
+                    && !attacked(3, 0)
                 ) {
                     moves.add(CastlingMove(4, 0, 2, 0))
                 }
@@ -449,12 +409,12 @@ object MoveGenerator {
             if (board.blackKingsideCastling
                 && board.fields[7][7]?.color == PieceColor.BLACK
                 && board.fields[7][7]?.type  == PieceType.ROOK
-                && freeSquare(5, 7)
-                && freeSquare(6, 7)
+                && free(5, 7)
+                && free(6, 7)
             ) {
-                if (!isSquareAttacked(4, 7)
-                    && !isSquareAttacked(5, 7)
-                    && !isSquareAttacked(6, 7)
+                if (!attacked(4, 7)
+                    && !attacked(5, 7)
+                    && !attacked(6, 7)
                 ) {
                     moves.add(CastlingMove(4, 7, 6, 7))
                 }
@@ -462,13 +422,13 @@ object MoveGenerator {
             if (board.blackQueensideCastling
                 && board.fields[0][7]?.color == PieceColor.BLACK
                 && board.fields[0][7]?.type  == PieceType.ROOK
-                && freeSquare(1, 7)
-                && freeSquare(2, 7)
-                && freeSquare(3, 7)
+                && free(1, 7)
+                && free(2, 7)
+                && free(3, 7)
             ) {
-                if (!isSquareAttacked(4, 7)
-                    && !isSquareAttacked(2, 7)
-                    && !isSquareAttacked(3, 7)
+                if (!attacked(4, 7)
+                    && !attacked(2, 7)
+                    && !attacked(3, 7)
                 ) {
                     moves.add(CastlingMove(4, 7, 2, 7))
                 }
@@ -478,51 +438,52 @@ object MoveGenerator {
 
 
     //--------------------------------- ATTACKING MOVES GENERATION ---------------------------------
-    private fun addPawnAttackingMoves(col: Int, row: Int, color: PieceColor, moves: MutableList<Move>) {
+    // only for pawn and a king cause not all of their normal moves are attacking moves
+    private fun addPawnAttackingMoves(col: Int, row: Int, color: PieceColor, moves: MutableList<ChessMove>) {
         if (color == PieceColor.WHITE) {
             if (onChessboard(col + 1, row + 1)) {
-                moves.add(Move(col, row, col + 1, row + 1))
+                moves.add(ChessMove(col, row, col + 1, row + 1))
             }
             if (onChessboard(col - 1, row + 1)) {
-                moves.add(Move(col, row, col - 1, row + 1))
+                moves.add(ChessMove(col, row, col - 1, row + 1))
             }
         }
         else if (color == PieceColor.BLACK) {
             if (onChessboard(col + 1, row - 1)) {
-                moves.add(Move(col, row, col + 1, row - 1))
+                moves.add(ChessMove(col, row, col + 1, row - 1))
             }
             if (onChessboard(col - 1, row - 1)) {
-                moves.add(Move(col, row, col - 1, row - 1))
+                moves.add(ChessMove(col, row, col - 1, row - 1))
             }
         }
     }
 
 
-    private fun addKingAttackingMoves(col: Int, row: Int, color: PieceColor, moves: MutableList<Move>) {
+    private fun addKingAttackingMoves(col: Int, row: Int, color: PieceColor, moves: MutableList<ChessMove>) {
         val oppColor = opponentColor(color)
         if (onChessboard(col, row + 1) && freeOrColor(col, row + 1, oppColor)) {
-            moves.add(Move(col, row, col, row + 1))
+            moves.add(ChessMove(col, row, col, row + 1))
         }
         if (onChessboard(col, row - 1) && freeOrColor(col, row - 1, oppColor)) {
-            moves.add(Move(col, row, col, row - 1))
+            moves.add(ChessMove(col, row, col, row - 1))
         }
         if (onChessboard(col + 1, row) && freeOrColor(col + 1, row, oppColor)) {
-            moves.add(Move(col, row, col + 1, row))
+            moves.add(ChessMove(col, row, col + 1, row))
         }
         if (onChessboard(col - 1, row) && freeOrColor(col - 1, row, oppColor)) {
-            moves.add(Move(col, row, col - 1, row))
+            moves.add(ChessMove(col, row, col - 1, row))
         }
         if (onChessboard(col + 1, row + 1) && freeOrColor(col + 1, row + 1, oppColor)) {
-            moves.add(Move(col, row, col + 1, row + 1))
+            moves.add(ChessMove(col, row, col + 1, row + 1))
         }
         if (onChessboard(col + 1, row - 1) && freeOrColor(col + 1, row - 1, oppColor)) {
-            moves.add(Move(col, row, col + 1, row - 1))
+            moves.add(ChessMove(col, row, col + 1, row - 1))
         }
         if (onChessboard(col - 1, row + 1) && freeOrColor(col - 1, row + 1, oppColor)) {
-            moves.add(Move(col, row, col - 1, row + 1))
+            moves.add(ChessMove(col, row, col - 1, row + 1))
         }
         if (onChessboard(col - 1, row - 1) && freeOrColor(col - 1, row - 1, oppColor)) {
-            moves.add(Move(col, row, col - 1, row - 1))
+            moves.add(ChessMove(col, row, col - 1, row - 1))
         }
     }
 }

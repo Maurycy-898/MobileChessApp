@@ -1,7 +1,7 @@
 package com.mobile.chessapp.backend.game.boardUtils
 
 import com.mobile.chessapp.backend.game.moveUtils.MoveGenerator
-import com.mobile.chessapp.backend.game.moveUtils.MoveGenerator.isSquareAttacked
+import com.mobile.chessapp.backend.game.moveUtils.MoveGenerator.attacked
 
 
 object BoardBuilder {
@@ -79,8 +79,8 @@ object BoardBuilder {
             board.enPassantTargetRow = ("" + elements[3][1]).toInt() - 1
         }
         MoveGenerator.generatorSetup(board)
-        board.whiteKingAttacked = isSquareAttacked(board.whiteKingCol, board.whiteKingRow)
-        board.blackKingAttacked = isSquareAttacked(board.blackKingCol, board.blackKingRow)
+        board.whiteKingAttacked = attacked(board.whiteKingCol, board.whiteKingRow)
+        board.blackKingAttacked = attacked(board.blackKingCol, board.blackKingRow)
         return board
     }
 }

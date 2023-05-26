@@ -1,4 +1,4 @@
-package com.mobile.chessapp.ui.archive
+package com.mobile.chessapp.ui.fragments.notifications
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,10 +7,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.mobile.chessapp.databinding.FragmentArchiveBinding
+import com.mobile.chessapp.databinding.FragmentNotificationsBinding
 
-class ArchiveFragment : Fragment() {
-    private var _binding: FragmentArchiveBinding? = null
+class NotificationsFragment : Fragment() {
+    private var _binding: FragmentNotificationsBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -21,13 +21,13 @@ class ArchiveFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val archiveViewModel = ViewModelProvider(this).get(ArchiveViewModel::class.java)
+        val notificationsViewModel = ViewModelProvider(this).get(NotificationsViewModel::class.java)
 
-        _binding = FragmentArchiveBinding.inflate(inflater, container, false)
+        _binding = FragmentNotificationsBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textArchive
-        archiveViewModel.text.observe(viewLifecycleOwner) {
+        val textView: TextView = binding.textNotifications
+        notificationsViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
         return root

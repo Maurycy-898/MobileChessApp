@@ -1,4 +1,4 @@
-package com.mobile.chessapp.ui.home
+package com.mobile.chessapp.ui.fragments.home
 
 import android.os.Bundle
 import android.view.LayoutInflater

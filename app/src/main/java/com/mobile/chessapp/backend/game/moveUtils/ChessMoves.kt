@@ -3,7 +3,7 @@ package com.mobile.chessapp.backend.game.moveUtils
 import com.mobile.chessapp.backend.game.boardUtils.ChessPiece
 import com.mobile.chessapp.backend.game.boardUtils.PieceType
 
-open class Move(var beginCol: Int, var beginRow: Int, var endCol: Int, var endRow: Int) {
+open class ChessMove(var beginCol: Int, var beginRow: Int, var endCol: Int, var endRow: Int) {
     var movedPiece: ChessPiece? = null
     var takenPiece: ChessPiece? = null
 
@@ -56,7 +56,7 @@ open class Move(var beginCol: Int, var beginRow: Int, var endCol: Int, var endRo
 
 
 class PromotionMove(beginCol: Int, beginRow: Int, endCol: Int, endRow: Int,
-                    var newPiece: PieceType) : Move(beginCol, beginRow, endCol, endRow) {
+                    var newPiece: PieceType) : ChessMove(beginCol, beginRow, endCol, endRow) {
     override fun toString() : String {
         var result = super.toString() + " "
         when (newPiece) {
@@ -72,8 +72,8 @@ class PromotionMove(beginCol: Int, beginRow: Int, endCol: Int, endRow: Int,
 
 
 class CastlingMove(beginCol: Int, beginRow: Int, endCol: Int, endRow: Int) :
-    Move(beginCol, beginRow, endCol, endRow)
+    ChessMove(beginCol, beginRow, endCol, endRow)
 
 
 class EnPassantMove(beginCol: Int, beginRow: Int, endCol: Int, endRow: Int) :
-    Move(beginCol, beginRow, endCol, endRow)
+    ChessMove(beginCol, beginRow, endCol, endRow)

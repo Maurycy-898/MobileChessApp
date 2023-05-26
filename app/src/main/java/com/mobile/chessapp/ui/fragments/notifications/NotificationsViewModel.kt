@@ -1,13 +1,12 @@
-package com.mobile.chessapp.ui.archive
+package com.mobile.chessapp.ui.fragments.notifications
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-
-class ArchiveViewModel : ViewModel() {
+class NotificationsViewModel : ViewModel() {
     private val _text = MutableLiveData<String>().apply {
-        value = "This is archive Fragment"
+        value = "This is notifications Fragment"
     }
     val text: LiveData<String> = _text
 }

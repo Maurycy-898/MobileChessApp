@@ -1,4 +1,4 @@
-package com.mobile.chessapp.activities
+package com.mobile.chessapp.ui.views
 
 import android.content.Context
 import android.util.AttributeSet
@@ -7,11 +7,8 @@ import androidx.appcompat.widget.AppCompatTextView
 class FieldView : AppCompatTextView {
     constructor(context: Context?) : super(context!!)
     constructor(context: Context?, attrs: AttributeSet?) : super(context!!, attrs)
-    constructor(context: Context?, attrs: AttributeSet?, defStyle: Int) : super(
-        context!!,
-        attrs,
-        defStyle
-    )
+    constructor(context: Context?, attrs: AttributeSet?, defStyle: Int)
+            : super(context!!, attrs, defStyle)
 
     public override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         if (widthMeasureSpec < heightMeasureSpec) {
@@ -19,6 +16,5 @@ class FieldView : AppCompatTextView {
         } else {
             super.onMeasure(heightMeasureSpec, heightMeasureSpec)
         }
-
     }
 }

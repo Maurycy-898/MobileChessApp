@@ -23,6 +23,7 @@ class ChessBoard {
     var whiteKingAttacked = false
     var blackKingAttacked = false
 
+    var isGameOver: Boolean = false
     var activeColor = PieceColor.WHITE
     val fields = Array(BOARD_SIZE) {
         Array<ChessPiece?>(BOARD_SIZE) { null }
@@ -32,7 +33,7 @@ class ChessBoard {
     init { setupBoard() }
 
 
-    fun doMove(move: Move) {
+    fun doMove(move: ChessMove) {
         val movedPiece: ChessPiece = fields[move.beginCol][move.beginRow]!!
 
         move.savedEnPassantPossible = enPassantPossible
@@ -135,15 +136,15 @@ class ChessBoard {
         else {
             enPassantPossible = false
         }
+        activeColor = if (activeColor == PieceColor.WHITE) PieceColor.BLACK else PieceColor.WHITE
 
         MoveGenerator.generatorSetup(this)
-        whiteKingAttacked = MoveGenerator.isSquareAttacked(whiteKingCol, whiteKingRow)
-        blackKingAttacked = MoveGenerator.isSquareAttacked(blackKingCol, blackKingRow)
-        activeColor = if (activeColor == PieceColor.WHITE) PieceColor.BLACK else PieceColor.WHITE
+        whiteKingAttacked = MoveGenerator.attacked(whiteKingCol, whiteKingRow)
+        blackKingAttacked = MoveGenerator.attacked(blackKingCol, blackKingRow)
     }
 
 
-    fun undoMove(move: Move) {
+    fun undoMove(move: ChessMove) {
         whiteKingsideCastling = move.savedWhiteKingsideCastling
         whiteQueensideCastling = move.savedWhiteQueensideCastling
         blackKingsideCastling = move.savedBlackKingsideCastling
@@ -230,7 +231,7 @@ class ChessBoard {
         whiteKingCol = 4
         whiteKingRow = 0
         blackKingCol = 4
-        blackKingCol = 7
+        blackKingRow = 7
 
         blackKingsideCastling = true
         whiteKingsideCastling = true
@@ -243,14 +244,14 @@ class ChessBoard {
     }
 
 
-    private fun getKingCol(color: PieceColor) : Int {
+    fun getKingCol(color: PieceColor) : Int {
         return when(color) {
             PieceColor.WHITE -> whiteKingCol
             PieceColor.BLACK -> blackKingCol
         }
     }
 
-    private fun getKingRow(color: PieceColor) : Int {
+    fun getKingRow(color: PieceColor) : Int {
         return when(color) {
             PieceColor.WHITE -> whiteKingRow
             PieceColor.BLACK -> blackKingRow
