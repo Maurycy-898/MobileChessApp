@@ -66,7 +66,6 @@ class ChessBoard {
             move.takenPiece = fields[move.endCol][move.beginRow]
         }
         else if (move is CastlingMove) {
-            println("Castling ... ")
             if (move.endCol == 2 && move.endRow == 0) {
                 fields[0][0] = null; fields[4][0] = null
                 fields[3][0] = ChessPiece(PieceType.ROOK, PieceColor.WHITE)
@@ -138,7 +137,6 @@ class ChessBoard {
             enPassantPossible = false
         }
         activeColor = if (activeColor == PieceColor.WHITE) PieceColor.BLACK else PieceColor.WHITE
-
         MoveGenerator.generatorSetup(this)
         whiteKingAttacked = MoveGenerator.attacked(whiteKingCol, whiteKingRow)
         blackKingAttacked = MoveGenerator.attacked(blackKingCol, blackKingRow)
@@ -199,7 +197,7 @@ class ChessBoard {
             fields[move.endCol][move.endRow] = move.takenPiece
             fields[move.beginCol][move.beginRow] = movedPiece
         }
-
+        if (isGameOver) isGameOver = false // undo move = undo final result
         activeColor = if (activeColor == PieceColor.WHITE) PieceColor.BLACK else PieceColor.WHITE
     }
 

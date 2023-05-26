@@ -2,7 +2,6 @@ package com.mobile.chessapp.ui.adapters
 
 import android.content.Context
 import android.content.res.Configuration
-import android.graphics.Color
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mobile.chessapp.backend.game.BoardUI
 import com.mobile.chessapp.backend.game.FieldUI
 import com.mobile.chessapp.backend.game.boardUtils.BOARD_SIZE
-import com.mobile.chessapp.ui.colors.PROMPTED_FIELD_COLOR
+import com.mobile.chessapp.ui.theme.*
 import com.mobile.chessapp.ui.views.FieldView
 
 class GameAdapter(
@@ -30,7 +29,7 @@ class GameAdapter(
     }
 
     override fun getItemCount(): Int {
-        return BOARD_SIZE * BOARD_SIZE
+        return BOARD_SIZE*BOARD_SIZE
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -45,12 +44,19 @@ class GameAdapter(
         fun bind(fieldUI: FieldUI) {
             (itemView as TextView).text = fieldUI.symbol
 
-            if (!fieldUI.prompted){
-                itemView.setBackgroundResource(fieldUI.color)
+            if (fieldUI.prompted) {
+//                itemView.setBackgroundResource(PROMPTED_FIELD_COLOR)
+                if (fieldUI.color == DARK_FIELD_COLOR) {
+                    itemView.setBackgroundResource(PROMPTED_DARK_FIELD_COLOR)
+                } else {
+                    itemView.setBackgroundResource(PROMPTED_LIGHT_FIELD_COLOR)
+                }
             } else {
-                itemView.setBackgroundResource(PROMPTED_FIELD_COLOR)
+                itemView.setBackgroundResource(fieldUI.color)
             }
+
             itemView.setOnClickListener {
+                fieldUI.prompted = true
                 onClick.onFieldClick(fieldUI.col, fieldUI.row)
             }
         }

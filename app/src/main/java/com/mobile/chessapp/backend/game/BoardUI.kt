@@ -1,8 +1,8 @@
 package com.mobile.chessapp.backend.game
 
 import com.mobile.chessapp.backend.game.boardUtils.*
-import com.mobile.chessapp.ui.colors.DARK_FIELD_COLOR
-import com.mobile.chessapp.ui.colors.LIGHT_FIELD_COLOR
+import com.mobile.chessapp.ui.theme.DARK_FIELD_COLOR
+import com.mobile.chessapp.ui.theme.LIGHT_FIELD_COLOR
 
 
 // Handles ui related to chess board

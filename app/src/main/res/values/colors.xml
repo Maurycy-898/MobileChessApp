@@ -8,7 +8,10 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="light_field">#F3CEDB</color>
+    <color name="light_field">#FDC6DA</color>
     <color name="dark_field">#DD296A</color>
-    <color name="prompted_field">#A87B8D</color>
+    <color name="prompted_field">#FFCBE2</color>
+    <color name="prompted_light_field">#D8FDC6DA</color>
+    <color name="prompted_dark_field">#8DDD296A</color>
+    <color name="clicked_field">#800335</color>
 </resources>
