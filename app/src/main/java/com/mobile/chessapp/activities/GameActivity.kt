@@ -8,9 +8,11 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mobile.chessapp.R
 import com.mobile.chessapp.backend.game.ChessGame
-import com.mobile.chessapp.backend.game.GameMode
+import com.mobile.chessapp.backend.game.EngineChessGame
+import com.mobile.chessapp.backend.game.OfflineChessGame
+import com.mobile.chessapp.backend.game.OnlineChessGame
 import com.mobile.chessapp.backend.game.boardUtils.ChessBoard
-import com.mobile.chessapp.backend.game.moveUtils.MoveGenerator
+import com.mobile.chessapp.backend.game.boardUtils.PieceColor
 import com.mobile.chessapp.ui.adapters.GameAdapter
 import com.mobile.chessapp.ui.adapters.OnFieldClick
 
@@ -24,8 +26,11 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
         setContentView(R.layout.activity_game)
         recyclerView = findViewById(R.id.board)
 
-        // TODO: chess game based on how it was called
-        chessGame = ChessGame(ChessBoard(), GameMode.ENGINE)
+        chessGame = when (intent.getIntExtra("mode", 0)) {
+            0 -> OfflineChessGame(ChessBoard())
+            1 -> OnlineChessGame(ChessBoard(), color = PieceColor.valueOf(intent.getStringExtra("color")!!))
+            else -> EngineChessGame(ChessBoard())
+        }
 
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             recyclerView.layoutManager = GridLayoutManager(

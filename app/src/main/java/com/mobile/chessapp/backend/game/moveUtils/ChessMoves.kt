@@ -3,7 +3,7 @@ package com.mobile.chessapp.backend.game.moveUtils
 import com.mobile.chessapp.backend.game.boardUtils.ChessPiece
 import com.mobile.chessapp.backend.game.boardUtils.PieceType
 
-open class ChessMove(var beginCol: Int, var beginRow: Int, var endCol: Int, var endRow: Int) {
+open class ChessMove(var beginCol: Int = 0, var beginRow: Int = 0, var endCol: Int = 0, var endRow: Int = 0) {
     var movedPiece: ChessPiece? = null
     var takenPiece: ChessPiece? = null
 
