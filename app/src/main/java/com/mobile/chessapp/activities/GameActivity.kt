@@ -28,7 +28,7 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
 
         chessGame = when (intent.getIntExtra("mode", 0)) {
             0 -> OfflineChessGame(ChessBoard())
-            1 -> OnlineChessGame(ChessBoard(), color = PieceColor.valueOf(intent.getStringExtra("color")!!))
+            1 -> OnlineChessGame(ChessBoard(), color = PieceColor.valueOf(intent.getStringExtra("color")!!), onFieldClick = this)
             else -> EngineChessGame(ChessBoard())
         }
 

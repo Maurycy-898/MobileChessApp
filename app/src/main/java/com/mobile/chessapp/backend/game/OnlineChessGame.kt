@@ -14,6 +14,7 @@ import com.mobile.chessapp.backend.game.moveUtils.CastlingMove
 import com.mobile.chessapp.backend.game.moveUtils.ChessMove
 import com.mobile.chessapp.backend.game.moveUtils.EnPassantMove
 import com.mobile.chessapp.backend.game.moveUtils.PromotionMove
+import com.mobile.chessapp.ui.adapters.OnFieldClick
 
 object DatabaseHandler {
     val database = Firebase.database.reference
@@ -24,11 +25,15 @@ class OnlineChessGame(
     board: ChessBoard,
     playerColor: PieceColor = PieceColor.WHITE,
     oppColor: PieceColor = PieceColor.BLACK,
-    private var color: PieceColor
+    private var color: PieceColor,
+    private var onFieldClick: OnFieldClick
 ) : ChessGame(board, playerColor, oppColor) {
     private val TAG = "Database:moves"
 
     init {
+        if (color == PieceColor.BLACK) {
+            boardUI.flip()
+        }
         DatabaseHandler.database.child("moves").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val dbMoveMade = dataSnapshot.getValue<DatabaseMove>() ?: return
@@ -45,7 +50,7 @@ class OnlineChessGame(
                     board.doMove(moveMade)
                     moveArchive.add(moveMade)
                     boardUI.updateFields(board)
-                    onCancel()
+                    onFieldClick.onFieldClick(moveMade.endCol, moveMade.endRow)
                 }
             }
 
