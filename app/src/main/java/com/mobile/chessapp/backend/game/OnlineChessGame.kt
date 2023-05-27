@@ -7,9 +7,13 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
+import com.mobile.chessapp.backend.database.DatabaseMove
 import com.mobile.chessapp.backend.game.boardUtils.ChessBoard
 import com.mobile.chessapp.backend.game.boardUtils.PieceColor
+import com.mobile.chessapp.backend.game.moveUtils.CastlingMove
 import com.mobile.chessapp.backend.game.moveUtils.ChessMove
+import com.mobile.chessapp.backend.game.moveUtils.EnPassantMove
+import com.mobile.chessapp.backend.game.moveUtils.PromotionMove
 
 object DatabaseHandler {
     val database = Firebase.database.reference
@@ -27,11 +31,21 @@ class OnlineChessGame(
     init {
         DatabaseHandler.database.child("moves").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val moveMade = dataSnapshot.getValue<ChessMove>() ?: return
+                val dbMoveMade = dataSnapshot.getValue<DatabaseMove>() ?: return
+                val moveMade: ChessMove = if (dbMoveMade.newPiece != null) {
+                    dbMoveMade.chessMove!!.toPromotionMove(dbMoveMade.newPiece!!)
+                } else if (dbMoveMade.isEnPassantMove) {
+                    dbMoveMade.chessMove!!.toEnPassantMove()
+                } else if (dbMoveMade.isCastlingMove) {
+                    dbMoveMade.chessMove!!.toCastlingMove()
+                } else {
+                    dbMoveMade.chessMove!!
+                }
                 if (board.fields[moveMade.beginCol][moveMade.beginRow] != null) {
                     board.doMove(moveMade)
                     moveArchive.add(moveMade)
                     boardUI.updateFields(board)
+                    onCancel()
                 }
             }
 
@@ -51,6 +65,8 @@ class OnlineChessGame(
     }
 
     override fun prepareOpponentsTurn() {
-        DatabaseHandler.database.child("moves").setValue(moveArchive.last)
+        val move = moveArchive.last
+        DatabaseHandler.database.child("moves").setValue(
+            DatabaseMove(move, if (move is PromotionMove) move.newPiece else null, move is EnPassantMove, move is CastlingMove))
     }
 }

@@ -52,6 +52,78 @@ open class ChessMove(var beginCol: Int = 0, var beginRow: Int = 0, var endCol: I
         result += (endRow + 1).toString()
         return result
     }
+
+    fun toPromotionMove(newPiece: PieceType) : PromotionMove {
+        val move = PromotionMove(beginCol, beginRow, endCol, endRow, newPiece)
+        move.movedPiece = movedPiece
+        move.takenPiece = takenPiece
+
+        move.savedWhiteKingsideCastling = savedWhiteKingsideCastling
+        move.savedWhiteQueensideCastling = savedWhiteQueensideCastling
+        move.savedBlackKingsideCastling = savedBlackKingsideCastling
+        move.savedBlackQueensideCastling = savedBlackQueensideCastling
+
+        move.savedEnPassantPossible = savedEnPassantPossible
+        move.savedEnPassantTargetCol = savedEnPassantTargetCol
+        move.savedEnPassantTargetRow = savedEnPassantTargetRow
+
+        move.savedWhiteKingCol = savedWhiteKingCol
+        move.savedWhiteKingRow = savedWhiteKingRow
+        move.savedBlackKingCol = savedBlackKingCol
+        move.savedBlackKingRow = savedBlackKingRow
+
+        move.savedWhiteKingAttacked = savedWhiteKingAttacked
+        move.savedBlackKingAttacked = savedBlackKingAttacked
+        return move
+    }
+
+    fun toEnPassantMove() : EnPassantMove {
+        val move = EnPassantMove(beginCol, beginRow, endCol, endRow)
+        move.movedPiece = movedPiece
+        move.takenPiece = takenPiece
+
+        move.savedWhiteKingsideCastling = savedWhiteKingsideCastling
+        move.savedWhiteQueensideCastling = savedWhiteQueensideCastling
+        move.savedBlackKingsideCastling = savedBlackKingsideCastling
+        move.savedBlackQueensideCastling = savedBlackQueensideCastling
+
+        move.savedEnPassantPossible = savedEnPassantPossible
+        move.savedEnPassantTargetCol = savedEnPassantTargetCol
+        move.savedEnPassantTargetRow = savedEnPassantTargetRow
+
+        move.savedWhiteKingCol = savedWhiteKingCol
+        move.savedWhiteKingRow = savedWhiteKingRow
+        move.savedBlackKingCol = savedBlackKingCol
+        move.savedBlackKingRow = savedBlackKingRow
+
+        move.savedWhiteKingAttacked = savedWhiteKingAttacked
+        move.savedBlackKingAttacked = savedBlackKingAttacked
+        return move
+    }
+
+    fun toCastlingMove() : CastlingMove {
+        val move = CastlingMove(beginCol, beginRow, endCol, endRow)
+        move.movedPiece = movedPiece
+        move.takenPiece = takenPiece
+
+        move.savedWhiteKingsideCastling = savedWhiteKingsideCastling
+        move.savedWhiteQueensideCastling = savedWhiteQueensideCastling
+        move.savedBlackKingsideCastling = savedBlackKingsideCastling
+        move.savedBlackQueensideCastling = savedBlackQueensideCastling
+
+        move.savedEnPassantPossible = savedEnPassantPossible
+        move.savedEnPassantTargetCol = savedEnPassantTargetCol
+        move.savedEnPassantTargetRow = savedEnPassantTargetRow
+
+        move.savedWhiteKingCol = savedWhiteKingCol
+        move.savedWhiteKingRow = savedWhiteKingRow
+        move.savedBlackKingCol = savedBlackKingCol
+        move.savedBlackKingRow = savedBlackKingRow
+
+        move.savedWhiteKingAttacked = savedWhiteKingAttacked
+        move.savedBlackKingAttacked = savedBlackKingAttacked
+        return move
+    }
 }
 
 
