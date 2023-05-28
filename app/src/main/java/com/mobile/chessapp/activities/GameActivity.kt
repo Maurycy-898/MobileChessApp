@@ -6,8 +6,10 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.BuildCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mobile.chessapp.R
@@ -22,6 +24,7 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
     private lateinit var recyclerView: RecyclerView
     private lateinit var boardAdapter: GameAdapter
 
+    @androidx.annotation.OptIn(BuildCompat.PrereleaseSdkCheck::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
@@ -53,6 +56,18 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
 
         boardAdapter = GameAdapter(this, chessGame.boardUI, this)
         recyclerView.adapter = boardAdapter
+        onBackPressedDispatcher.addCallback(this) {
+            exit()
+        }
+    }
+
+    override fun onDestroy() {
+        if (!chessGame.board.isGameOver) {
+            if (chessGame is OnlineChessGame) {
+                (chessGame as OnlineChessGame).surrender()
+            }
+        }
+        super.onDestroy()
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -79,12 +94,30 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
     }
 
     fun surrender(view: View) {
+        if (chessGame.board.isGameOver) {
+            return
+        }
         val builder = AlertDialog.Builder(this)
         builder.setMessage("Czy na pewno chcesz poddać rozgrywkę?")
         builder.setPositiveButton("Tak") { _, _ ->
             if (chessGame is OnlineChessGame) {
                 (chessGame as OnlineChessGame).surrender()
             }
+        }
+        builder.setNegativeButton("Nie") { _, _ ->}
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    private fun exit() {
+        if (chessGame.board.isGameOver) {
+            finish()
+            return
+        }
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage("Czy na pewno chcesz opuścić rozgrywkę? (spowoduje to zwycięstwo przeciwnika)")
+        builder.setPositiveButton("Tak") { _, _ ->
+            finish()
         }
         builder.setNegativeButton("Nie") { _, _ ->}
         val dialog = builder.create()

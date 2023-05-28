@@ -48,11 +48,6 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
     }
 
-    override fun onRestart() {
-        super.onRestart()
-        whitePlayer = false
-    }
-
     fun play(view: View) {
         when (view.id) {
             R.id.offline_button -> {
@@ -93,6 +88,7 @@ class MainActivity : AppCompatActivity() {
             val player = snapshot.getValue<Boolean>()
             if (player == true && whitePlayer) {
                 dialog.hide()
+                whitePlayer = false
                 DatabaseHandler.database.reference.child("player").removeValue()
                 DatabaseHandler.database.reference.child("player").removeEventListener(this)
                 val playIntent = Intent(context, GameActivity::class.java)

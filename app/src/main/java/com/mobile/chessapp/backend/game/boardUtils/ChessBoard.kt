@@ -6,7 +6,7 @@ import com.mobile.chessapp.backend.game.moveUtils.*
 
 const val BOARD_SIZE = 8
 
-class ChessBoard {
+class ChessBoard : java.io.Serializable {
     var whiteKingsideCastling = false
     var whiteQueensideCastling = false
     var blackKingsideCastling = false
