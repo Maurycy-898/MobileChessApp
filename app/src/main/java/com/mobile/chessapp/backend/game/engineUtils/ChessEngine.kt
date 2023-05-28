@@ -22,8 +22,9 @@ object ChessEngine {
 
         val moves: List<ChessMove> = MoveGenerator.generateMoves(board)
         if (moves.isEmpty()) {
-            if (board.blackKingAttacked) return Evaluation(bestMove = null, LOSING_SCORE)
-            if (board.whiteKingAttacked) return Evaluation(bestMove = null, WINNING_SCORE)
+            val colFactor = board.activeColor.colorFactor
+            if (board.whiteKingAttacked) return Evaluation(bestMove = null, colFactor*LOSING_SCORE)
+            if (board.blackKingAttacked) return Evaluation(bestMove = null, colFactor*WINNING_SCORE)
             return Evaluation(bestMove = null, DRAWING_SCORE)
         }
 

@@ -1,6 +1,6 @@
 package com.mobile.chessapp.backend.game.boardUtils
 
-data class ChessPiece(var type: PieceType, var color: PieceColor) {
+data class ChessPiece(var type: PieceType = PieceType.PAWN, var color: PieceColor = PieceColor.WHITE) : java.io.Serializable {
     fun getValue() : Int {
         return color.colorFactor * type.pieceValue
     }

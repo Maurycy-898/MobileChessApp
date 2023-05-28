@@ -3,11 +3,13 @@ package com.mobile.chessapp.ui.adapters
 import android.content.Context
 import android.content.res.Configuration
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.widget.TextViewCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.mobile.chessapp.R
 import com.mobile.chessapp.backend.game.BoardUI
 import com.mobile.chessapp.backend.game.FieldUI
 import com.mobile.chessapp.backend.game.boardUtils.BOARD_SIZE
@@ -21,10 +23,15 @@ class GameAdapter(
     ) : RecyclerView.Adapter<GameAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val itemView: TextView = FieldView(mContext)
+        /*val itemView: TextView = FieldView(mContext)
         itemView.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         TextViewCompat.setAutoSizeTextTypeWithDefaults(itemView, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM)
-        itemView.gravity = Gravity.CENTER
+        itemView.gravity = Gravity.CENTER*/
+        val itemView = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_field, parent, false)
+        if (mContext.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            itemView.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        }
         return ViewHolder(itemView)
     }
 
@@ -42,7 +49,8 @@ class GameAdapter(
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(fieldUI: FieldUI) {
-            (itemView as TextView).text = fieldUI.symbol
+            val textView = itemView.findViewById<TextView>(R.id.text_view)
+            textView.text = fieldUI.symbol
 
             if (fieldUI.prompted) {
 //                itemView.setBackgroundResource(PROMPTED_FIELD_COLOR)

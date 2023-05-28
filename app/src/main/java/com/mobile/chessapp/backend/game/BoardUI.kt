@@ -6,7 +6,7 @@ import com.mobile.chessapp.ui.theme.LIGHT_FIELD_COLOR
 
 
 // Handles ui related to chess board
-class BoardUI(private var playerPOV: PieceColor = PieceColor.WHITE, board: ChessBoard) {
+class BoardUI(private var playerPOV: PieceColor = PieceColor.WHITE, board: ChessBoard) : java.io.Serializable {
     var fields = Array(BOARD_SIZE) { col ->
         Array(BOARD_SIZE) { row ->
             val symbol: String = asSymbol(board.fields[col][row])
