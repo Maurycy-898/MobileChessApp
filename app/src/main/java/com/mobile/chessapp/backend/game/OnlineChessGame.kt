@@ -1,10 +1,7 @@
 package com.mobile.chessapp.backend.game
 
 import android.util.Log
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
@@ -16,11 +13,9 @@ import com.mobile.chessapp.backend.game.moveUtils.ChessMove
 import com.mobile.chessapp.backend.game.moveUtils.EnPassantMove
 import com.mobile.chessapp.backend.game.moveUtils.PromotionMove
 import com.mobile.chessapp.ui.adapters.OnFieldClick
-import java.util.Objects
 
 object DatabaseHandler {
     val database = Firebase.database
-    var whitePlayer = false
 }
 
 class OnlineChessGame(
@@ -37,69 +32,35 @@ class OnlineChessGame(
         val gamesRef = DatabaseHandler.database.getReference("games")
         if (color == PieceColor.WHITE) {
             newGameRef = gamesRef.push()
+            DatabaseHandler.database.getReference("newGameRefKey").setValue(newGameRef!!.key)
             movesRef = newGameRef!!.child("moves")
-            addMovesListener()
+            addListeners()
         } else {
-            gamesRef.addChildEventListener(object : ChildEventListener {
-                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                    Log.i("added", "added")
-                    newGameRef = snapshot.ref
+            DatabaseHandler.database.getReference("newGameRefKey").addValueEventListener(object : ValueEventListener {
+                private var firstChange = false
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (!firstChange) {
+                        firstChange = true
+                        return
+                    }
+                    newGameRef = DatabaseHandler.database.getReference("games/${snapshot.getValue<String>()}")
                     movesRef = newGameRef!!.child("moves")
-                    gamesRef.removeEventListener(this)
-                    addMovesListener()
-                }
-
-                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                    Log.i("removed", "removed")
-                }
-
-                override fun onChildRemoved(snapshot: DataSnapshot) {
-                    Log.i("removed", "removed")
-                }
-
-                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-                    Log.i("moved", "moved")
+                    DatabaseHandler.database.getReference("newGameRefKey").removeEventListener(this)
+                    addListeners()
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Log.w("Database:moves", "onCancelled", error.toException())
+                    Log.w("Database:newGameRefKey", "onCancelled", error.toException())
                 }
             })
-        }
-        //movesRef.setValue(ArrayList<DatabaseMove>())
-        if (color == PieceColor.BLACK) {
             boardUI.flip()
         }
-        /*gamesRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val dbMoveMade = dataSnapshot.getValue<DatabaseMove>() ?: return
-                val moveMade: ChessMove = if (dbMoveMade.newPiece != null) {
-                    dbMoveMade.chessMove!!.toPromotionMove(dbMoveMade.newPiece!!)
-                } else if (dbMoveMade.isEnPassantMove) {
-                    dbMoveMade.chessMove!!.toEnPassantMove()
-                } else if (dbMoveMade.isCastlingMove) {
-                    dbMoveMade.chessMove!!.toCastlingMove()
-                } else {
-                    dbMoveMade.chessMove!!
-                }
-                if (board.fields[moveMade.beginCol][moveMade.beginRow] != null) {
-                    board.doMove(moveMade)
-                    moveArchive.add(moveMade)
-                    boardUI.updateFields(board)
-                    onFieldClick.onFieldClick(moveMade.endCol, moveMade.endRow)
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.w("Database:moves", "loadMove:onCancelled", error.toException())
-            }
-        })*/
     }
 
-    private fun addMovesListener() {
-        movesRef!!.addChildEventListener(object : ChildEventListener {
+    private fun addListeners() {
+        movesRef?.addChildEventListener(object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                Log.i("added", "added")
+                Log.i("Database:moves", "added")
                 val dbMoveMade = snapshot.getValue<DatabaseMove>() ?: return
                 val moveMade: ChessMove = if (dbMoveMade.newPiece != null) {
                     dbMoveMade.chessMove!!.toPromotionMove(dbMoveMade.newPiece!!)
@@ -119,19 +80,34 @@ class OnlineChessGame(
             }
 
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                Log.i("changed", "changed")
+                Log.i("Database:moves", "changed")
             }
 
             override fun onChildRemoved(snapshot: DataSnapshot) {
-                Log.i("removed", "removed")
+                Log.i("Database:moves", "removed")
             }
 
             override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-                Log.i("moved", "moved")
+                Log.i("Database:moves", "moved")
             }
 
             override fun onCancelled(error: DatabaseError) {
                 Log.w("Database:moves", "onCancelled", error.toException())
+            }
+        })
+
+        newGameRef?.child("winner")?.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val winnerDb = snapshot.getValue<String>()
+                if (winnerDb == color.name) {
+                    board.isGameOver = true
+                    winner = color
+                    onFieldClick.onFieldClick(0,0)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.w("Database:winner", "onCancelled", error.toException())
             }
         })
     }
@@ -150,5 +126,12 @@ class OnlineChessGame(
         val newMove = movesRef!!.push()
         newMove.setValue(DatabaseMove(move, if (move is PromotionMove) move.newPiece else null,
             move is EnPassantMove, move is CastlingMove))
+    }
+
+    override fun surrender() {
+        board.isGameOver = true
+        winner = if (color == PieceColor.WHITE) PieceColor.BLACK else PieceColor.WHITE
+        newGameRef?.child("winner")
+            ?.setValue(if (color == PieceColor.WHITE) "BLACK" else "WHITE")
     }
 }

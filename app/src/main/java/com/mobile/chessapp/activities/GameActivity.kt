@@ -11,10 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mobile.chessapp.R
-import com.mobile.chessapp.backend.game.ChessGame
-import com.mobile.chessapp.backend.game.EngineChessGame
-import com.mobile.chessapp.backend.game.OfflineChessGame
-import com.mobile.chessapp.backend.game.OnlineChessGame
+import com.mobile.chessapp.backend.game.*
 import com.mobile.chessapp.backend.game.boardUtils.ChessBoard
 import com.mobile.chessapp.backend.game.boardUtils.PieceColor
 import com.mobile.chessapp.ui.adapters.GameAdapter
@@ -46,8 +43,6 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
                 else -> EngineChessGame(ChessBoard())
             }
 
-
-
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             recyclerView.layoutManager = GridLayoutManager(
                 this, 8, GridLayoutManager.HORIZONTAL, false
@@ -71,7 +66,7 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
     }
 
     private fun onGameOver() {
-        if (chessGame.board.blackKingAttacked) {
+        if (chessGame.winner == PieceColor.WHITE || chessGame.board.blackKingAttacked) {
             Toast.makeText(this, "GAME OVER, WHITE WON!!!", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(this, "GAME OVER, BLACK WON!!!", Toast.LENGTH_SHORT).show()
@@ -84,15 +79,16 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
     }
 
     fun surrender(view: View) {
-        //TODO: popup window
         val builder = AlertDialog.Builder(this)
         builder.setMessage("Czy na pewno chcesz poddać rozgrywkę?")
         builder.setPositiveButton("Tak") { _, _ ->
-
+            if (chessGame is OnlineChessGame) {
+                (chessGame as OnlineChessGame).surrender()
+            }
         }
-        builder.setNegativeButton("Nie") { _, _ ->
-
-        }
+        builder.setNegativeButton("Nie") { _, _ ->}
+        val dialog = builder.create()
+        dialog.show()
     }
 }
 

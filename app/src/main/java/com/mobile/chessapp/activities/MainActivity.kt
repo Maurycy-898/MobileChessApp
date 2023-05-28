@@ -23,6 +23,7 @@ import com.mobile.chessapp.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    var whitePlayer = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +48,11 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
     }
 
+    override fun onRestart() {
+        super.onRestart()
+        whitePlayer = false
+    }
+
     fun play(view: View) {
         when (view.id) {
             R.id.offline_button -> {
@@ -55,19 +61,20 @@ class MainActivity : AppCompatActivity() {
                 startActivity(playIntent)
             }
             R.id.online_button -> {
+                Log.i("isWhite", whitePlayer.toString())
                 val builder = AlertDialog.Builder(this)
                 builder.setMessage("Oczekiwanie na przeciwnika...")
                 builder.setPositiveButton("Anuluj") { _, _ ->
                     DatabaseHandler.database.reference.child("player").removeValue()
+                    whitePlayer = false
                 }
                 val dialog = builder.create()
                 DatabaseHandler.database.reference.child("player").get().addOnSuccessListener {
                     if (!it.exists()) {
-                        DatabaseHandler.whitePlayer = true
+                        whitePlayer = true
                         DatabaseHandler.database.reference.child("player").setValue(false)
                         dialog.show()
                     }
-                    Log.i("firebase", "Got value ${it.value}")
                 }.addOnFailureListener{
                     Log.e("firebase", "Error getting data", it)
                 }
@@ -81,18 +88,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    inner class DataChangeListener(var context: Context, var dialog: AlertDialog): ValueEventListener {
+    inner class DataChangeListener(var context: Context, private var dialog: AlertDialog): ValueEventListener {
         override fun onDataChange(snapshot: DataSnapshot) {
             val player = snapshot.getValue<Boolean>()
-            if (player == true && DatabaseHandler.whitePlayer) {
+            if (player == true && whitePlayer) {
                 dialog.hide()
                 DatabaseHandler.database.reference.child("player").removeValue()
+                DatabaseHandler.database.reference.child("player").removeEventListener(this)
                 val playIntent = Intent(context, GameActivity::class.java)
                 playIntent.putExtra("mode", 1)
                 playIntent.putExtra("color", PieceColor.WHITE.name)
                 startActivity(playIntent)
-            } else if (player == false && !DatabaseHandler.whitePlayer) {
+            } else if (player == false && !whitePlayer) {
                 DatabaseHandler.database.reference.child("player").setValue(true)
+                DatabaseHandler.database.reference.child("player").removeEventListener(this)
                 val playIntent = Intent(context, GameActivity::class.java)
                 playIntent.putExtra("mode", 1)
                 playIntent.putExtra("color", PieceColor.BLACK.name)

@@ -20,7 +20,7 @@ abstract class ChessGame(
     private var prevRow = NOT_CLICKED
 
     protected var moveArchive = LinkedList<ChessMove>()
-    private var gameEnded: Boolean = false
+    var winner: PieceColor? = null
 
     var boardUI: BoardUI = BoardUI(playerColor, board)
     private var possibleMovesMap = Array(BOARD_SIZE) {
@@ -66,4 +66,6 @@ abstract class ChessGame(
         }
         boardUI.updateFields(board)
     }
+
+    abstract fun surrender()
 }

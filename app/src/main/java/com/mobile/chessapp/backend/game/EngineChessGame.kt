@@ -18,6 +18,11 @@ class EngineChessGame(
         onEngineMove()
     }
 
+    override fun surrender() {
+        winner = oppColor
+        board.isGameOver = true
+    }
+
     private fun onEngineMove() {
         if (oppColor == board.activeColor) {
             val eval = ChessEngine.findBestMove(board)
