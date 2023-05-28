@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -54,16 +55,23 @@ class MainActivity : AppCompatActivity() {
                 startActivity(playIntent)
             }
             R.id.online_button -> {
-                DatabaseHandler.database.child("player").get().addOnSuccessListener {
+                val builder = AlertDialog.Builder(this)
+                builder.setMessage("Oczekiwanie na przeciwnika...")
+                builder.setPositiveButton("Anuluj") { _, _ ->
+                    DatabaseHandler.database.reference.child("player").removeValue()
+                }
+                val dialog = builder.create()
+                DatabaseHandler.database.reference.child("player").get().addOnSuccessListener {
                     if (!it.exists()) {
                         DatabaseHandler.whitePlayer = true
-                        DatabaseHandler.database.child("player").setValue(false)
+                        DatabaseHandler.database.reference.child("player").setValue(false)
+                        dialog.show()
                     }
                     Log.i("firebase", "Got value ${it.value}")
                 }.addOnFailureListener{
                     Log.e("firebase", "Error getting data", it)
                 }
-                DatabaseHandler.database.child("player").addValueEventListener(DataChangeListener(this))
+                DatabaseHandler.database.reference.child("player").addValueEventListener(DataChangeListener(this, dialog))
             }
             else -> {
                 val playIntent = Intent(this, GameActivity::class.java)
@@ -73,17 +81,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    inner class DataChangeListener(var context: Context): ValueEventListener {
+    inner class DataChangeListener(var context: Context, var dialog: AlertDialog): ValueEventListener {
         override fun onDataChange(snapshot: DataSnapshot) {
             val player = snapshot.getValue<Boolean>()
             if (player == true && DatabaseHandler.whitePlayer) {
-                DatabaseHandler.database.child("player").removeValue()
+                dialog.hide()
+                DatabaseHandler.database.reference.child("player").removeValue()
                 val playIntent = Intent(context, GameActivity::class.java)
                 playIntent.putExtra("mode", 1)
                 playIntent.putExtra("color", PieceColor.WHITE.name)
                 startActivity(playIntent)
             } else if (player == false && !DatabaseHandler.whitePlayer) {
-                DatabaseHandler.database.child("player").setValue(true)
+                DatabaseHandler.database.reference.child("player").setValue(true)
                 val playIntent = Intent(context, GameActivity::class.java)
                 playIntent.putExtra("mode", 1)
                 playIntent.putExtra("color", PieceColor.BLACK.name)

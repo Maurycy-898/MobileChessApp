@@ -1,10 +1,12 @@
 package com.mobile.chessapp.activities
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
+import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -58,6 +60,7 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
         recyclerView.adapter = boardAdapter
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onFieldClick(col: Int, row: Int) {
         if (chessGame.board.isGameOver) {
             onGameOver()
@@ -78,6 +81,18 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putSerializable("chessGame", chessGame)
+    }
+
+    fun surrender(view: View) {
+        //TODO: popup window
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage("Czy na pewno chcesz poddać rozgrywkę?")
+        builder.setPositiveButton("Tak") { _, _ ->
+
+        }
+        builder.setNegativeButton("Nie") { _, _ ->
+
+        }
     }
 }
 
