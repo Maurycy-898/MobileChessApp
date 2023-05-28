@@ -27,7 +27,6 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
         recyclerView = findViewById(R.id.board)
-        Log.i("eee", "najs")
         chessGame = when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> savedInstanceState?.getSerializable(
                 "chessGame",
@@ -78,21 +77,7 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        Log.i("aha", "spoko")
         outState.putSerializable("chessGame", chessGame)
     }
-
-    /*override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        Log.i("a", "ok")
-        val chessGameRestored = when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> savedInstanceState.getSerializable("chessGame", ChessGame::class.java)
-            else -> @Suppress("DEPRECATION") savedInstanceState.getSerializable("chessGame") as? ChessGame
-        }
-        if (chessGameRestored != null) {
-            chessGame = chessGameRestored
-            boardAdapter.notifyDataSetChanged()
-        }
-    }*/
 }
 

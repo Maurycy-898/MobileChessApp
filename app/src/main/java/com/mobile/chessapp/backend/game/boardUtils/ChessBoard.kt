@@ -1,5 +1,6 @@
 package com.mobile.chessapp.backend.game.boardUtils
 
+import android.util.Log
 import com.mobile.chessapp.backend.game.moveUtils.*
 
 
@@ -62,8 +63,8 @@ class ChessBoard {
         else if (move is EnPassantMove) {
             fields[move.beginCol][move.beginRow] = null
             fields[move.endCol][move.endRow] = movedPiece
-            fields[move.endCol][move.beginRow] = null
             move.takenPiece = fields[move.endCol][move.beginRow]
+            fields[move.endCol][move.beginRow] = null
         }
         else if (move is CastlingMove) {
             if (move.endCol == 2 && move.endRow == 0) {
@@ -170,6 +171,7 @@ class ChessBoard {
             val movedPiece = fields[move.endCol][move.endRow]
             fields[move.endCol][move.endRow] = null
             fields[move.beginCol][move.beginRow] = movedPiece
+            Log.d("takenPiece", move.takenPiece.toString())
             fields[move.endCol][move.beginRow] = move.takenPiece
 
         } else if (move is CastlingMove) {
