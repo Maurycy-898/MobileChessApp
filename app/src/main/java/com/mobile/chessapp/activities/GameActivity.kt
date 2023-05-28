@@ -1,7 +1,9 @@
 package com.mobile.chessapp.activities
 
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
@@ -25,16 +27,30 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
         recyclerView = findViewById(R.id.board)
-
-        chessGame = when (intent.getIntExtra("mode", 0)) {
-            0 -> OfflineChessGame(ChessBoard())
-            1 -> OnlineChessGame(ChessBoard(), color = PieceColor.valueOf(intent.getStringExtra("color")!!), onFieldClick = this)
-            else -> EngineChessGame(ChessBoard())
+        Log.i("eee", "najs")
+        chessGame = when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> savedInstanceState?.getSerializable(
+                "chessGame",
+                ChessGame::class.java
+            )
+            else -> @Suppress("DEPRECATION") savedInstanceState?.getSerializable("chessGame") as? ChessGame
         }
+            ?: when (intent.getIntExtra("mode", 0)) {
+                0 -> OfflineChessGame(ChessBoard())
+                1 -> OnlineChessGame(
+                    ChessBoard(),
+                    color = PieceColor.valueOf(intent.getStringExtra("color")!!),
+                    onFieldClick = this
+                )
+                else -> EngineChessGame(ChessBoard())
+            }
+
+
 
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             recyclerView.layoutManager = GridLayoutManager(
-                this, 8, GridLayoutManager.HORIZONTAL, false)
+                this, 8, GridLayoutManager.HORIZONTAL, false
+            )
         } else {
             recyclerView.layoutManager = GridLayoutManager(this, 8)
         }
@@ -59,5 +75,24 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
             Toast.makeText(this, "GAME OVER, BLACK WON!!!", Toast.LENGTH_SHORT).show()
         }
     }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        Log.i("aha", "spoko")
+        outState.putSerializable("chessGame", chessGame)
+    }
+
+    /*override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        Log.i("a", "ok")
+        val chessGameRestored = when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> savedInstanceState.getSerializable("chessGame", ChessGame::class.java)
+            else -> @Suppress("DEPRECATION") savedInstanceState.getSerializable("chessGame") as? ChessGame
+        }
+        if (chessGameRestored != null) {
+            chessGame = chessGameRestored
+            boardAdapter.notifyDataSetChanged()
+        }
+    }*/
 }
 

@@ -1,18 +1,17 @@
 package com.mobile.chessapp.backend.game
 
-import android.util.Log
 import com.mobile.chessapp.backend.game.boardUtils.BOARD_SIZE
 import com.mobile.chessapp.backend.game.boardUtils.ChessBoard
 import com.mobile.chessapp.backend.game.boardUtils.PieceColor
 import com.mobile.chessapp.backend.game.moveUtils.ChessMove
 import com.mobile.chessapp.backend.game.moveUtils.MoveGenerator
-import java.util.LinkedList
+import java.util.*
 
-abstract class ChessGame (
+abstract class ChessGame(
     var board: ChessBoard,
     var playerColor: PieceColor = PieceColor.WHITE,
     var oppColor: PieceColor = PieceColor.BLACK,
-) {
+) : java.io.Serializable {
 
     protected var clickCount: Int =  0
     private val NOT_CLICKED: Int = -1
