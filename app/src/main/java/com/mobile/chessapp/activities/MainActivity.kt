@@ -17,7 +17,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.getValue
 import com.mobile.chessapp.R
-import com.mobile.chessapp.backend.game.DatabaseHandler
+import com.mobile.chessapp.backend.database.DatabaseHandler
 import com.mobile.chessapp.backend.game.boardUtils.PieceColor
 import com.mobile.chessapp.databinding.ActivityMainBinding
 
@@ -58,8 +58,9 @@ class MainActivity : AppCompatActivity() {
             R.id.online_button -> {
                 Log.i("isWhite", whitePlayer.toString())
                 val builder = AlertDialog.Builder(this)
-                builder.setMessage("Oczekiwanie na przeciwnika...")
-                builder.setPositiveButton("Anuluj") { _, _ ->
+                builder.setCancelable(false)
+                builder.setMessage("Waiting for opponent...")
+                builder.setPositiveButton("Cancel") { _, _ ->
                     DatabaseHandler.database.reference.child("player").removeValue()
                     whitePlayer = false
                 }

@@ -5,7 +5,6 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -24,6 +23,7 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
     private lateinit var recyclerView: RecyclerView
     private lateinit var boardAdapter: GameAdapter
 
+    @SuppressLint("NotifyDataSetChanged")
     @androidx.annotation.OptIn(BuildCompat.PrereleaseSdkCheck::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,10 +41,15 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
                 1 -> OnlineChessGame(
                     ChessBoard(),
                     color = PieceColor.valueOf(intent.getStringExtra("color")!!),
-                    onFieldClick = this
+                    onGameOver = { onGameOver() },
+                    refreshBoard = { boardAdapter.notifyDataSetChanged() }
                 )
                 else -> EngineChessGame(ChessBoard())
             }
+        if (chessGame is OnlineChessGame){
+            (chessGame as OnlineChessGame).onGameOver = { onGameOver() }
+            (chessGame as OnlineChessGame).refreshBoard = { boardAdapter.notifyDataSetChanged() }
+        }
 
         if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             recyclerView.layoutManager = GridLayoutManager(
@@ -63,28 +68,24 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
 
     override fun onDestroy() {
         if (!chessGame.board.isGameOver) {
-            if (chessGame is OnlineChessGame) {
-                (chessGame as OnlineChessGame).surrender()
-            }
+            chessGame.surrender()
         }
         super.onDestroy()
     }
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onFieldClick(col: Int, row: Int) {
-        if (chessGame.board.isGameOver) {
-            onGameOver()
-        } else {
-            chessGame.onFieldClick(col, row)
-            boardAdapter.notifyDataSetChanged()
-        }
+        chessGame.onFieldClick(col, row,
+            onGameOver = { onGameOver() },
+            refreshBoard = { boardAdapter.notifyDataSetChanged() }
+        )
     }
 
     private fun onGameOver() {
         if (chessGame.winner == PieceColor.WHITE || chessGame.board.blackKingAttacked) {
-            Toast.makeText(this, "GAME OVER, WHITE WON!!!", Toast.LENGTH_SHORT).show()
+            showGameOverDialog("GAME OVER, WHITE WON!!!")
         } else {
-            Toast.makeText(this, "GAME OVER, BLACK WON!!!", Toast.LENGTH_SHORT).show()
+            showGameOverDialog("GAME OVER, BLACK WON!!!")
         }
     }
 
@@ -98,30 +99,39 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
             return
         }
         val builder = AlertDialog.Builder(this)
-        builder.setMessage("Czy na pewno chcesz poddać rozgrywkę?")
-        builder.setPositiveButton("Tak") { _, _ ->
-            if (chessGame is OnlineChessGame) {
-                (chessGame as OnlineChessGame).surrender()
-            }
+        builder.setMessage("Do you want to surrender?")
+        builder.setPositiveButton("YES") { _, _ ->
+            chessGame.surrender()
+            showGameOverDialog("YOU LOST!")
         }
-        builder.setNegativeButton("Nie") { _, _ ->}
-        val dialog = builder.create()
-        dialog.show()
+        builder.setNegativeButton("NO") { _, _ -> }
+        builder.setCancelable(false)
+        builder.create().show()
     }
 
     private fun exit() {
         if (chessGame.board.isGameOver) {
             finish()
-            return
+        } else {
+            val builder = AlertDialog.Builder(this)
+            builder.setMessage("Are you sure you want to quit? (you will lose the game)")
+            builder.setPositiveButton("YES") { _, _ ->
+                finish()
+            }
+            builder.setNegativeButton("NO") { _, _ -> }
+            builder.setCancelable(false)
+            builder.create().show()
         }
-        val builder = AlertDialog.Builder(this)
-        builder.setMessage("Czy na pewno chcesz opuścić rozgrywkę? (spowoduje to zwycięstwo przeciwnika)")
-        builder.setPositiveButton("Tak") { _, _ ->
+    }
+
+    private fun showGameOverDialog(message: String) {
+        val infoDialogBuilder = AlertDialog.Builder(this)
+        infoDialogBuilder.setMessage(message)
+        infoDialogBuilder.setPositiveButton("OK") { _, _ ->
             finish()
         }
-        builder.setNegativeButton("Nie") { _, _ ->}
-        val dialog = builder.create()
-        dialog.show()
+        infoDialogBuilder.setCancelable(false)
+        infoDialogBuilder.create().show()
     }
 }
 

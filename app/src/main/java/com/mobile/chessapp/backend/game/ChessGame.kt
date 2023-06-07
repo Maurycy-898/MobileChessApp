@@ -5,7 +5,9 @@ import com.mobile.chessapp.backend.game.boardUtils.ChessBoard
 import com.mobile.chessapp.backend.game.boardUtils.PieceColor
 import com.mobile.chessapp.backend.game.moveUtils.ChessMove
 import com.mobile.chessapp.backend.game.moveUtils.MoveGenerator
+import kotlinx.coroutines.runBlocking
 import java.util.*
+import kotlin.concurrent.thread
 
 abstract class ChessGame(
     var board: ChessBoard,
@@ -27,9 +29,17 @@ abstract class ChessGame(
         Array<ChessMove?>(BOARD_SIZE) { null }
     }
 
-    abstract fun onFieldClick(col: Int, row: Int)
+    open fun onFieldClick(col: Int, row: Int, onGameOver: () -> Unit, refreshBoard: () -> Unit={}) {
+        clickCount += 1
+        click(col, row, refreshBoard)
 
-    protected fun click(col: Int, row: Int) {
+        if (this.board.isGameOver) {
+            onGameOver()
+        }
+        refreshBoard()
+    }
+
+    protected fun click(col: Int, row: Int, refreshBoard: () -> Unit) {
         if (clickCount == 1) { // map moves
             if (board.fields[col][row]?.color != board.activeColor) {
                 onCancel(); return
@@ -49,7 +59,8 @@ abstract class ChessGame(
                 board.doMove(moveMade)
                 moveArchive.add(moveMade)
                 boardUI.updateFields(board)
-                prepareOpponentsTurn()
+
+                refreshBoard().also { prepareOpponentsTurn() }
             }
             onCancel(); return
         }

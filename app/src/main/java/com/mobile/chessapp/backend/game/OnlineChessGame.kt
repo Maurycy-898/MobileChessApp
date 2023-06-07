@@ -2,9 +2,8 @@ package com.mobile.chessapp.backend.game
 
 import android.util.Log
 import com.google.firebase.database.*
-import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
-import com.google.firebase.ktx.Firebase
+import com.mobile.chessapp.backend.database.DatabaseHandler
 import com.mobile.chessapp.backend.database.DatabaseMove
 import com.mobile.chessapp.backend.game.boardUtils.ChessBoard
 import com.mobile.chessapp.backend.game.boardUtils.PieceColor
@@ -12,28 +11,25 @@ import com.mobile.chessapp.backend.game.moveUtils.CastlingMove
 import com.mobile.chessapp.backend.game.moveUtils.ChessMove
 import com.mobile.chessapp.backend.game.moveUtils.EnPassantMove
 import com.mobile.chessapp.backend.game.moveUtils.PromotionMove
-import com.mobile.chessapp.ui.adapters.OnFieldClick
-
-object DatabaseHandler {
-    val database = Firebase.database
-}
 
 class OnlineChessGame(
     board: ChessBoard,
     playerColor: PieceColor = PieceColor.WHITE,
     oppColor: PieceColor = PieceColor.BLACK,
     private var color: PieceColor,
-    private var onFieldClick: OnFieldClick
+    @Transient var onGameOver: () -> Unit,
+    @Transient var refreshBoard: () -> Unit
 ) : ChessGame(board, playerColor, oppColor) {
-    private var newGameRef: DatabaseReference? = null
-    private var movesRef: DatabaseReference? = null
+
+    private var newGameRefKey: String? = null
 
     init {
         val gamesRef = DatabaseHandler.database.getReference("games")
+        var newGameRef: DatabaseReference
         if (color == PieceColor.WHITE) {
             newGameRef = gamesRef.push()
-            DatabaseHandler.database.getReference("newGameRefKey").setValue(newGameRef!!.key)
-            movesRef = newGameRef!!.child("moves")
+            DatabaseHandler.database.getReference("newGameRefKey").setValue(newGameRef.key)
+            newGameRefKey = newGameRef.key
             addListeners()
         } else {
             DatabaseHandler.database.getReference("newGameRefKey").addValueEventListener(object : ValueEventListener {
@@ -44,7 +40,7 @@ class OnlineChessGame(
                         return
                     }
                     newGameRef = DatabaseHandler.database.getReference("games/${snapshot.getValue<String>()}")
-                    movesRef = newGameRef!!.child("moves")
+                    newGameRefKey = newGameRef.key
                     DatabaseHandler.database.getReference("newGameRefKey").removeEventListener(this)
                     addListeners()
                 }
@@ -58,7 +54,9 @@ class OnlineChessGame(
     }
 
     private fun addListeners() {
-        movesRef?.addChildEventListener(object : ChildEventListener {
+        val newGameRef = DatabaseHandler.database.getReference("games").child(newGameRefKey!!)
+        val movesRef = newGameRef.child("moves")
+        movesRef.addChildEventListener(object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 Log.i("Database:moves", "added")
                 val dbMoveMade = snapshot.getValue<DatabaseMove>() ?: return
@@ -75,7 +73,7 @@ class OnlineChessGame(
                     board.doMove(moveMade)
                     moveArchive.add(moveMade)
                     boardUI.updateFields(board)
-                    onFieldClick.onFieldClick(moveMade.endCol, moveMade.endRow)
+                    onFieldClick(moveMade.endCol, moveMade.endRow, onGameOver, refreshBoard)
                 }
             }
 
@@ -96,32 +94,39 @@ class OnlineChessGame(
             }
         })
 
-        newGameRef?.child("winner")?.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val winnerDb = snapshot.getValue<String>()
-                if (winnerDb == color.name) {
-                    board.isGameOver = true
-                    winner = color
-                    onFieldClick.onFieldClick(0,0)
+        newGameRef.child("winner")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val winnerDb = snapshot.getValue<String>()
+                    if (winnerDb == color.name) {
+                        board.isGameOver = true
+                        winner = color
+                        onGameOver()
+                    }
                 }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.w("Database:winner", "onCancelled", error.toException())
-            }
-        })
+                override fun onCancelled(error: DatabaseError) {
+                    Log.w("Database:winner", "onCancelled", error.toException())
+                }
+            })
     }
 
-    override fun onFieldClick(col: Int, row: Int) {
+    override fun onFieldClick(col: Int, row: Int, onGameOver: () -> Unit, refreshBoard: () -> Unit) {
         clickCount += 1
         if (board.activeColor == color) {
-            click(col, row)
+            click(col, row, refreshBoard)
+            if (this.board.isGameOver) {
+                onGameOver()
+            }
         } else {
             onCancel()
         }
+        refreshBoard()
     }
 
     override fun prepareOpponentsTurn() {
+        val newGameRef = DatabaseHandler.database.getReference("games").child(newGameRefKey!!)
+        val movesRef = newGameRef.child("moves")
         val move = moveArchive.last
         val newMove = movesRef!!.push()
         newMove.setValue(DatabaseMove(move, if (move is PromotionMove) move.newPiece else null,
@@ -129,9 +134,10 @@ class OnlineChessGame(
     }
 
     override fun surrender() {
+        val newGameRef = DatabaseHandler.database.getReference("games").child(newGameRefKey!!)
         board.isGameOver = true
         winner = if (color == PieceColor.WHITE) PieceColor.BLACK else PieceColor.WHITE
-        newGameRef?.child("winner")
-            ?.setValue(if (color == PieceColor.WHITE) "BLACK" else "WHITE")
+        newGameRef.child("winner")
+            .setValue(if (color == PieceColor.WHITE) "BLACK" else "WHITE")
     }
 }

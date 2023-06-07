@@ -2,19 +2,16 @@ package com.mobile.chessapp.ui.adapters
 
 import android.content.Context
 import android.content.res.Configuration
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.core.widget.TextViewCompat
+import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.mobile.chessapp.R
 import com.mobile.chessapp.backend.game.BoardUI
 import com.mobile.chessapp.backend.game.FieldUI
 import com.mobile.chessapp.backend.game.boardUtils.BOARD_SIZE
 import com.mobile.chessapp.ui.theme.*
-import com.mobile.chessapp.ui.views.FieldView
 
 class GameAdapter(
     private val mContext: Context,
@@ -49,8 +46,10 @@ class GameAdapter(
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(fieldUI: FieldUI) {
-            val textView = itemView.findViewById<TextView>(R.id.text_view)
-            textView.text = fieldUI.symbol
+            val imageView = itemView.findViewById<ImageView>(R.id.img_view)
+            if (fieldUI.imgRes != FieldUI.EMPTY_FIELD_RES) {
+                imageView.setImageResource(fieldUI.imgRes)
+            } else imageView.setImageDrawable(null)
 
             if (fieldUI.prompted) {
 //                itemView.setBackgroundResource(PROMPTED_FIELD_COLOR)

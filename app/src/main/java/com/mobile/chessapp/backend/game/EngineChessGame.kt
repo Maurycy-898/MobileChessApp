@@ -9,11 +9,6 @@ class EngineChessGame(
     playerColor: PieceColor = PieceColor.WHITE,
     oppColor: PieceColor = PieceColor.BLACK,
 ) : ChessGame(board, playerColor, oppColor) {
-    override fun onFieldClick(col: Int, row: Int) {
-        clickCount += 1
-        click(col, row)
-    }
-
     override fun prepareOpponentsTurn() {
         onEngineMove()
     }
