@@ -13,3 +13,16 @@
 .externalNativeBuild
 .cxx
 local.properties
+.build-cache
+build/
+zendesk_scarlett_android.iml
+app/app.iml
+paperwork.json
+*.log
+clientextension.iml
+/clientextension/out/
+mat_tmp/
+.bundle/
+vendor/
+.idea/*
+!.idea/codeStyles/*

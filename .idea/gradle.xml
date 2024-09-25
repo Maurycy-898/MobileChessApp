@@ -4,15 +4,49 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="testRunner" value="GRADLE" />
-        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <compositeConfiguration>
+          <compositeBuild compositeDefinitionSource="SCRIPT">
+            <builds>
+              <build path="$PROJECT_DIR$/buildSrc" name="buildSrc">
+                <projects>
+                  <project path="$PROJECT_DIR$/buildSrc" />
+                </projects>
+              </build>
+            </builds>
+          </compositeBuild>
+        </compositeConfiguration>
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleJvm" value="#GRADLE_LOCAL_JAVA_HOME" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/buildSrc" />
+            <option value="$PROJECT_DIR$/chess" />
+            <option value="$PROJECT_DIR$/chess/client" />
+            <option value="$PROJECT_DIR$/chess/database" />
+            <option value="$PROJECT_DIR$/chess/engine" />
+            <option value="$PROJECT_DIR$/chess/logic" />
+            <option value="$PROJECT_DIR$/chess/model" />
+            <option value="$PROJECT_DIR$/chess/server" />
+            <option value="$PROJECT_DIR$/chess/ui" />
+            <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/core/common" />
+            <option value="$PROJECT_DIR$/core/compose-ui" />
+            <option value="$PROJECT_DIR$/core/model" />
+            <option value="$PROJECT_DIR$/core/navigation" />
+            <option value="$PROJECT_DIR$/core/repository" />
+            <option value="$PROJECT_DIR$/core/strings" />
+            <option value="$PROJECT_DIR$/core/theme" />
+            <option value="$PROJECT_DIR$/screen" />
+            <option value="$PROJECT_DIR$/screen/archive" />
+            <option value="$PROJECT_DIR$/screen/game" />
+            <option value="$PROJECT_DIR$/screen/home" />
+            <option value="$PROJECT_DIR$/screen/profile" />
+            <option value="$PROJECT_DIR$/screen/settings" />
           </set>
         </option>
+        <option name="resolveExternalAnnotations" value="false" />
       </GradleProjectSettings>
     </option>
   </component>
