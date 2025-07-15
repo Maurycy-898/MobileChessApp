@@ -1,7 +1,6 @@
 package com.mychessapp.chess.logic.internal
 
 import com.mychessapp.chess.logic.MovesGenerator
-import com.mychessapp.chess.logic.internal.model.ChessMove
 import com.mychessapp.chess.logic.internal.model.GameMetadata
 import com.mychessapp.chess.logic.internal.model.MoveGeneratorContext
 import com.mychessapp.chess.logic.internal.move_generators.BishopMovesGenerator
@@ -27,58 +26,49 @@ internal class MovesGeneratorImpl @Inject constructor(
   override fun generateAllLegalMoves(
     board: ChessBoard,
     metadata: GameMetadata,
-  ): List<ChessMove> =
-    board.fieldsList().flatMap {
-      generateAllLegalMovesFromField(board, metadata, it)
-    }
+  ) = board.fieldsList().flatMap {
+    generateAllLegalMovesFromField(board, metadata, it)
+  }
 
   override fun generateAllLegalMovesFromField(
     board: ChessBoard,
     metadata: GameMetadata,
     field: ChessField,
-  ): List<ChessMove> =
-    when (field) {
-      is ChessField.Empty -> emptyList()
-      is ChessField.WithPiece -> generatePieceMoves(board, metadata, field)
-    }
+  ) = when (field) {
+    is ChessField.Empty -> emptyList()
+    is ChessField.WithPiece -> generatePieceMoves(board, metadata, field)
+  }
 
   private fun generatePieceMoves(
     board: ChessBoard,
     metadata: GameMetadata,
     field: ChessField.WithPiece,
-  ): List<ChessMove> {
-    check(board.run { field.isOnChessBoard() }) {
-      "Error, field is not on chessboard! : ${field.position}"
-    }
-    return createMoveGeneratorContext(
-      board = board,
-      metadata = metadata,
-      fromField = field
-    ).run(::generatePieceMoves)
-  }
+  ) = createMoveGeneratorContext(
+    board = board,
+    metadata = metadata,
+    fromField = field
+  ).generatePieceMoves()
 
-  private fun generatePieceMoves(context: MoveGeneratorContext) =
-    when (context.fromField.piece.type) {
-      ChessPieceType.Pawn -> pawnMovesGenerator.generateMoves(context)
-      ChessPieceType.Knight -> knightMovesGenerator.generateMoves(context)
-      ChessPieceType.Bishop -> bishopMovesGenerator.generateMoves(context)
-      ChessPieceType.Rook -> rookMovesGenerator.generateMoves(context)
-      ChessPieceType.Queen -> queenMovesGenerator.generateMoves(context)
-      ChessPieceType.King -> kingMovesGenerator.generateMoves(context)
-    }
+  private fun MoveGeneratorContext.generatePieceMoves() = when (fromField.piece.type) {
+    ChessPieceType.Pawn -> pawnMovesGenerator.generateMoves(this)
+    ChessPieceType.Knight -> knightMovesGenerator.generateMoves(this)
+    ChessPieceType.Bishop -> bishopMovesGenerator.generateMoves(this)
+    ChessPieceType.Rook -> rookMovesGenerator.generateMoves(this)
+    ChessPieceType.Queen -> queenMovesGenerator.generateMoves(this)
+    ChessPieceType.King -> kingMovesGenerator.generateMoves(this)
+  }
 
   private fun createMoveGeneratorContext(
     board: ChessBoard,
     metadata: GameMetadata,
     fromField: ChessField.WithPiece,
-  ) =
-    MoveGeneratorContext(
-      board = board,
-      fromField = fromField,
-      fromPosition = fromField.position,
-      activeColor = fromField.piece.color,
-      enPassantStatus = metadata.enPassantStatus,
-      kingsStatus = metadata.kingsStatus,
-      attackedFields = setOf()
-    )
+  ) = MoveGeneratorContext(
+    board = board,
+    fromField = fromField,
+    fromPosition = fromField.position,
+    activeColor = fromField.piece.color,
+    enPassantStatus = metadata.enPassantStatus,
+    kingsPosition = metadata.kingsPosition,
+    castlingStatus = metadata.castlingStatus,
+  )
 }

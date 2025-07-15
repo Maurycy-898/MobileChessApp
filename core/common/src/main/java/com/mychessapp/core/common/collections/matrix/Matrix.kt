@@ -1,6 +1,7 @@
 package com.mychessapp.core.common.collections.matrix
 
-import com.mychessapp.core.common.collections.matrix.MatrixImpl.Companion.fromListOfLists
+import android.icu.text.Transliterator.Position
+import com.mychessapp.core.common.collections.matrix.MatrixImpl.Companion.fromLists
 
 /**
  * Matrix - a List representation of a matrix,
@@ -30,18 +31,23 @@ interface Matrix<T> : Collection<T> {
   fun copy(): Matrix<T>
   fun toMutableMatrix(): MutableMatrix<T>
 
-  fun transpose(): Matrix<T>
+  fun transposed(): Matrix<T>
   fun fieldsList(): List<T>
 }
 
 interface MutableMatrix<T> : Matrix<T> {
 
-  override fun iterator(): MutableIterator<T> =
-    fieldsList().toMutableList().iterator()
+  fun toMatrix(): Matrix<T>
 
   operator fun set(row: Int, column: Int, element: T)
 
-  fun toMatrix(): Matrix<T>
+  operator fun set(position: Pair<Int, Int>, element: T) {
+    set(position.first, position.second, element)
+  }
+
+  override fun copy(): MutableMatrix<T>
+
+  override fun transposed(): Matrix<T>
 }
 
 inline fun <T> Matrix(
@@ -104,5 +110,9 @@ inline fun <T, R> Matrix<T>.mapFieldsIndexed(
 
 fun <T> List<List<T>>.toMatrix(): Matrix<T> = toMutableMatrix()
 
-fun <T> List<List<T>>.toMutableMatrix(): MutableMatrix<T> =
-  fromListOfLists(listOfLists = this)
+fun <T> List<List<T>>.toMutableMatrix(): MutableMatrix<T> = fromLists(this)
+
+fun main() {
+  val matrix = Matrix(3, 3) { row, column -> row to column }
+  println(matrix.toString())
+}

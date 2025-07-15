@@ -4,8 +4,26 @@ import com.mychessapp.chess.logic.internal.model.ChessMove
 import com.mychessapp.chess.logic.internal.model.MoveDirection
 import com.mychessapp.chess.logic.internal.model.MoveGeneratorContext
 import com.mychessapp.chess.logic.internal.model.PieceMoveRange
+import com.mychessapp.chess.model.ChessField
+import com.mychessapp.chess.model.ChessPiece
+import com.mychessapp.chess.model.ChessPieceType.Rook
 import com.mychessapp.core.common.numbers.one
 import javax.inject.Inject
+
+internal class KingMovesGenerator @Inject constructor() {
+  fun generateMoves(context: MoveGeneratorContext) = with(context) {
+    generateAttackingMoves() + generateCastlingMoves()
+  }
+
+  private fun MoveGeneratorContext.generateAttackingMoves() =
+    kingMoveDirections.flatMap { direction -> getMovesInDirection(direction, kingMoveRange) }
+
+  private fun MoveGeneratorContext.generateCastlingMoves(): List<ChessMove> =
+    listOfNotNull(
+      generateCastlingMove(MoveDirection.Left),
+      generateCastlingMove(MoveDirection.Right),
+    )
+}
 
 private val kingMoveRange = PieceMoveRange(Int.one)
 
@@ -20,37 +38,23 @@ private val kingMoveDirections = listOf(
   MoveDirection.UpRight,
 )
 
-internal class KingMovesGenerator @Inject constructor() {
+internal fun MoveGeneratorContext.generateCastlingMove(direction: MoveDirection): ChessMove? {
+  val rookField = firstOrNullInDirection(direction) {
+    it is ChessField.WithPiece && it.piece == ChessPiece(activeColor, Rook)
+  } as? ChessField.WithPiece ?: return null
 
-  fun generateMoves(context: MoveGeneratorContext) = with(context) {
-    generateAttackingMoves() + generateCastlingMoves()
-  }
+  val castling = castlingStatus[activeColor]
+    ?.firstOrNull { it.rookStartingPosition == rookField.position }
+    ?: return null
 
-  fun MoveGeneratorContext.generateAttackingMoves() =
-    kingMoveDirections.flatMap { direction ->
-      getMovesInDirection(direction, kingMoveRange)
-    }
+  val rookMove = rookField moveTo castling.rookTargetPosition
 
-  private fun MoveGeneratorContext.generateCastlingMoves(): List<ChessMove> =
-    listOfNotNull(
-      generateCastlingMove(MoveDirection.Left),
-      generateCastlingMove(MoveDirection.Right),
-    )
-}
+  val kingField = board[fromPosition] as? ChessField.WithPiece ?: return null
+  val targetField = board[castling.kingTargetPosition] as? ChessField.Empty ?: return null
 
-fun MoveGeneratorContext.generateCastlingMove(direction: MoveDirection): ChessMove? {
-  val rookPosition = getRookPosition(direction)
-  val kingPosition = fromPosition
-  val rook = board[rookPosition]
-  val king = board[kingPosition]
-
-  if (rook?.isRook(activeColor) == true && king?.isKing(activeColor) == true) {
-    val rookDirection = direction.opposite()
-    val rookMove = getMovesInDirection(rookDirection, PieceMoveRange(Int.one)).firstOrNull()
-    val kingMove = getMovesInDirection(direction, PieceMoveRange(Int.one)).firstOrNull()
-    if (rookMove != null && kingMove != null) {
-      return ChessMove(kingPosition, kingMove, rookPosition, rookMove)
-    }
-  }
-  return null
+  return ChessMove.Castling(
+    from = kingField,
+    to = targetField,
+    rookMove = rookMove,
+  )
 }

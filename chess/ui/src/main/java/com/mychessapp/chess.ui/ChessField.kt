@@ -33,7 +33,9 @@ fun ChessField(
   modifier: Modifier = Modifier
 ) {
   Box(
-    modifier = modifier.fieldBackground(chessFieldState.field.color),
+    modifier = modifier
+      .background(color = chessFieldState.field.color.asColor())
+      .fieldBackground(chessFieldState.field.color),
     contentAlignment = Alignment.Center
   ) {
     when (chessFieldState.field) {
@@ -56,8 +58,8 @@ private class ChessFieldPreviewParameter : CollectionPreviewParameterProvider<Ch
   with(exampleChessField) {
     listOf(
       this,
-      ChessField.Empty(position = ChessFieldPosition(row = 0, column = 1)),
-      ChessField.Empty(position = ChessFieldPosition(row = 1, column = 2))
+      ChessField.Empty(position = ChessFieldPosition(row = 0, column = 2)),
+      ChessField.Empty(position = ChessFieldPosition(row = 0, column = 3))
     )
   }
 )

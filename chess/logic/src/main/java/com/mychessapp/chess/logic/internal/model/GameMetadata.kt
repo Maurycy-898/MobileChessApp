@@ -6,7 +6,8 @@ import com.mychessapp.chess.model.PlayerColor
 data class GameMetadata(
   val gameStatus: GameStatus,
   val enPassantStatus: EnPassantStatus,
-  val kingsStatus: MutableMap<PlayerColor, KingStatus>,
+  val kingsPosition: Map<PlayerColor, ChessFieldPosition>,
+  val castlingStatus: Map<PlayerColor, Set<CastlingData>>,
 )
 
 sealed class GameStatus {
@@ -14,11 +15,10 @@ sealed class GameStatus {
   data class Pending(val activeColor: PlayerColor) : GameStatus()
 }
 
-data class KingStatus(
-  val position: ChessFieldPosition,
-  val isAttacked: Boolean,
-  val canKingsideCastle: Boolean,
-  val canQueensideCastle: Boolean
+data class CastlingData(
+  val rookStartingPosition: ChessFieldPosition,
+  val rookTargetPosition: ChessFieldPosition,
+  val kingTargetPosition: ChessFieldPosition,
 )
 
 sealed class EnPassantStatus {

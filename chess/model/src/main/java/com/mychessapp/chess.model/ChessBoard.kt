@@ -21,16 +21,20 @@ class ChessBoard private constructor(
     fields[chessFieldPosition.row, chessFieldPosition.column] = newField
   }
 
-  fun ChessField.isOnChessBoard(): Boolean = position.isOnChessBoard()
+  fun isOnChessBoard(field: ChessField): Boolean = isOnChessBoard(field.position)
 
-  fun ChessFieldPosition.isOnChessBoard(): Boolean =
-    row in 0..<rowsSize && column in 0..<columnsSize
+  fun isOnChessBoard(position: ChessFieldPosition): Boolean =
+    position.row in 0..<rowsSize && position.column in 0..<columnsSize
 
   fun ChessFieldPosition.isEmptyField() = get(this).isEmptyField()
+
+  fun ChessFieldPosition.isNotEmptyField() = get(this).isNotEmptyField()
 
   fun ChessFieldPosition.isFieldWithPiece() = get(this).isFieldWithPiece()
 
   private fun ChessField.isEmptyField(): Boolean = this is ChessField.Empty
+
+  private fun ChessField.isNotEmptyField(): Boolean = !isEmptyField()
 
   private fun ChessField.isFieldWithPiece(): Boolean = this is ChessField.Empty
 
@@ -38,9 +42,9 @@ class ChessBoard private constructor(
 
     private const val DefaultChessBoardSize = 8
 
-    fun createEmptyBoard(size: Int = DefaultChessBoardSize) =
-      MutableMatrix(size) { row, column ->
+    fun empty(size: Int = DefaultChessBoardSize) =
+      MutableMatrix<ChessField>(size) { row, column ->
         ChessFieldPosition(row, column).let(ChessField::Empty)
-      } as ChessBoard
+      }.let(::ChessBoard)
   }
 }

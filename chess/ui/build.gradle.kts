@@ -1,3 +1,5 @@
+import dependencies.implementation
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.compose.compiler)
@@ -7,21 +9,21 @@ plugins {
 android {
     namespace = "com.mychessapp.chess.ui"
 
-    compileSdk = AppConfig.compileSdk
+    compileSdk = ProjectConfig.compileSdk
 
     defaultConfig {
-        minSdk = AppConfig.minSdk
-        lint.targetSdk = AppConfig.targetSdk
+        minSdk = ProjectConfig.minSdk
+        lint.targetSdk = ProjectConfig.targetSdk
     }
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
-        sourceCompatibility = AppConfig.sourceCompatibility
-        targetCompatibility = AppConfig.targetCompatibility
+        sourceCompatibility = ProjectConfig.sourceCompatibility
+        targetCompatibility = ProjectConfig.targetCompatibility
     }
 
     kotlinOptions {
-        jvmTarget = AppConfig.jvmTarget
+        jvmTarget = ProjectConfig.jvmTarget
     }
 
     testOptions {

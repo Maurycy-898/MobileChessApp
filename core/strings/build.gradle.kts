@@ -6,15 +6,15 @@ plugins {
 android {
     namespace = "com.mychessapp.app_strings"
 
-    compileSdk = AppConfig.compileSdk
+    compileSdk = ProjectConfig.compileSdk
 
     defaultConfig {
-        minSdk = AppConfig.minSdk
-        lint.targetSdk = AppConfig.targetSdk
+        minSdk = ProjectConfig.minSdk
+        lint.targetSdk = ProjectConfig.targetSdk
     }
 
     compileOptions {
-        sourceCompatibility = AppConfig.sourceCompatibility
-        targetCompatibility = AppConfig.targetCompatibility
+        sourceCompatibility = ProjectConfig.sourceCompatibility
+        targetCompatibility = ProjectConfig.targetCompatibility
     }
 }

@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="sign_in">Sign in</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="login_error">Login Error</string>
+    <string name="unexpected_error">Unexpected error</string>
+    <string name="try_again">Please try again</string>
 
-
+    <string name="mode_play_online_title">Play online</string>
+    <string name="mode_play_ai_title">Play AI</string>
+    <string name="mode_learn_title">Learn</string>
+    <string name="mode_puzzle_title">Puzzles</string>
+    <string name="mode_analyze_title">Analyze</string>
+    <string name="mode_news_title">News</string>
 </resources>

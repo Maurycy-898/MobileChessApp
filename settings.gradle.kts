@@ -45,3 +45,4 @@ include(
     ":screen:profile",
     ":screen:settings",
 )
+include(":screen:login")

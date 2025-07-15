@@ -1,3 +1,5 @@
+import dependencies.implementation
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.dagger.hilt)
@@ -10,14 +12,13 @@ plugins {
 android {
     namespace = "com.mobile.chessapp.app"
 
-    compileSdk = AppConfig.compileSdk
-
     defaultConfig {
-        versionCode = AppConfig.versionCode
-        applicationId = AppConfig.applicationId
+        compileSdk = ProjectConfig.compileSdk
+        versionCode = ProjectConfig.versionCode
+        applicationId = ProjectConfig.applicationId
 
-        minSdk = AppConfig.minSdk
-        targetSdk = AppConfig.targetSdk
+        minSdk = ProjectConfig.minSdk
+        targetSdk = ProjectConfig.targetSdk
 
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
@@ -32,8 +33,8 @@ android {
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
-        sourceCompatibility = AppConfig.sourceCompatibility
-        targetCompatibility = AppConfig.targetCompatibility
+        sourceCompatibility = ProjectConfig.sourceCompatibility
+        targetCompatibility = ProjectConfig.targetCompatibility
     }
 
     hilt {
@@ -41,7 +42,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = AppConfig.jvmTarget
+        jvmTarget = ProjectConfig.jvmTarget
 
     }
 
@@ -54,6 +55,18 @@ android {
 dependencies {
     coreLibraryDesugaring(libs.android.desugar.jdk)
 
+    implementation(projects.chess.model)
+    implementation(projects.chess.ui)
+    implementation(projects.core.composeUi)
+    
+    implementation(projects.screen.home)
+    implementation(projects.screen.login)
+    implementation(projects.screen.game)
+    implementation(projects.screen.archive)
+    implementation(projects.screen.profile)
+    implementation(projects.screen.settings)
+
+
     implementation(libs.android.material)
     implementation(libs.androidx.annotation)
     implementation(libs.androidx.appcompat)
@@ -64,8 +77,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
-    implementation(libs.dagger)
-    implementation(libs.dagger.hilt.android)
+    implementation(libs.bundles.androidx.compose)
+    implementation(libs.bundles.dagger)
     implementation(libs.firebase.analytics.ktx)
     implementation(libs.firebase.database.ktx)
     implementation(platform(libs.firebase.bom))

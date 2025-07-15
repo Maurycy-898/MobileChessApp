@@ -9,14 +9,27 @@ sealed class ChessField(
 
   data class WithPiece(
     override val position: ChessFieldPosition,
-    val piece: ChessPiece
+    val piece: ChessPiece,
   ) : ChessField(position)
 }
 
 fun ChessField.toChessNotation(
-  option: PieceNotationOption = PieceNotationOption.Text
+  option: PieceNotationOption = PieceNotationOption.Text,
 ) =
   when (this) {
     is ChessField.Empty -> position.toChessFieldNotation()
     is ChessField.WithPiece -> piece.toChessNotation(option) + position.toChessFieldNotation()
   }
+
+fun ChessField.pieceOrNull() = when (this) {
+  is ChessField.Empty -> null
+  is ChessField.WithPiece -> piece
+}
+
+fun ChessField.copy(
+  position: ChessFieldPosition = this.position,
+  piece: ChessPiece? = this.pieceOrNull(),
+) = when (piece) {
+  null -> ChessField.Empty(position)
+  else -> ChessField.WithPiece(position, piece)
+}

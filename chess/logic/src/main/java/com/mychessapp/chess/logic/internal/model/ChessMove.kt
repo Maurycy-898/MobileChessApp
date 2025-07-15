@@ -7,31 +7,28 @@ sealed class ChessMove(
   open val from: ChessField.WithPiece,
   open val to: ChessField,
 ) {
-  data class SimpleMove(
+  data class Simple(
     override val from: ChessField.WithPiece,
     override val to: ChessField,
   ) : ChessMove(from, to)
 
-  data class CaptureMove(
+  data class EnPassant(
     override val from: ChessField.WithPiece,
-    override val to: ChessField.WithPiece,
-  ) : ChessMove(from, to)
-
-  data class EnPassantMove(
-    override val from: ChessField.WithPiece,
-    override val to: ChessField,
+    override val to: ChessField.Empty,
     val capturedPiece: ChessPiece
   ) : ChessMove(from, to)
 
-  data class CastlingMove(
+  data class Castling(
     override val from: ChessField.WithPiece,
-    override val to: ChessField,
-    val rookMove: SimpleMove
+    override val to: ChessField.Empty,
+    val rookMove: Simple
   ) : ChessMove(from, to)
 
-  data class PromotionMove(
+  data class Promotion(
     override val from: ChessField.WithPiece,
     override val to: ChessField,
     val promotedPiece: ChessPiece
   ) : ChessMove(from, to)
+
+  fun isCapture() = this is EnPassant || to is ChessField.WithPiece
 }
