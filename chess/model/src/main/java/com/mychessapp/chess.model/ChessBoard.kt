@@ -10,12 +10,16 @@ import com.mychessapp.core.common.collections.matrix.MutableMatrix
  * must be equal to number of columns
  *
  */
+@Suppress("Unused")
 class ChessBoard private constructor(
-  private val fields: MutableMatrix<ChessField>
+  private val fields: MutableMatrix<ChessField>,
 ) : MutableMatrix<ChessField> by fields {
 
-  operator fun get(chessFieldPosition: ChessFieldPosition) =
-    fields[chessFieldPosition.row, chessFieldPosition.column]
+  operator fun get(position: ChessFieldPosition): ChessField =
+    fields[position.row, position.column]
+
+  fun getOrNull(position: ChessFieldPosition): ChessField? =
+    if (isOnChessBoard(position)) fields[position.row, position.column] else null
 
   operator fun set(chessFieldPosition: ChessFieldPosition, newField: ChessField) {
     fields[chessFieldPosition.row, chessFieldPosition.column] = newField

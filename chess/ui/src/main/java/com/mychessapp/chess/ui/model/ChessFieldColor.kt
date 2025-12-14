@@ -4,7 +4,7 @@ import com.mychessapp.chess.model.ChessField
 
 enum class ChessFieldColor {
   Dark,
-  Light
+  Light,
 }
 
 internal val ChessField.color: ChessFieldColor

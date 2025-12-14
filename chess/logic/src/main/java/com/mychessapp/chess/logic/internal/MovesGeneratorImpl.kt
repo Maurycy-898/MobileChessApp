@@ -26,14 +26,15 @@ internal class MovesGeneratorImpl @Inject constructor(
   override fun generateAllLegalMoves(
     board: ChessBoard,
     metadata: GameMetadata,
-  ) = board.fieldsList().flatMap {
-    generateAllLegalMovesFromField(board, metadata, it)
-  }
+  ) = board.fieldsList()
+    .flatMap { field ->
+      generateAllLegalMovesFromField(field, board, metadata)
+    }
 
   override fun generateAllLegalMovesFromField(
+    field: ChessField,
     board: ChessBoard,
     metadata: GameMetadata,
-    field: ChessField,
   ) = when (field) {
     is ChessField.Empty -> emptyList()
     is ChessField.WithPiece -> generatePieceMoves(board, metadata, field)
@@ -50,12 +51,12 @@ internal class MovesGeneratorImpl @Inject constructor(
   ).generatePieceMoves()
 
   private fun MoveGeneratorContext.generatePieceMoves() = when (fromField.piece.type) {
-    ChessPieceType.Pawn -> pawnMovesGenerator.generateMoves(this)
-    ChessPieceType.Knight -> knightMovesGenerator.generateMoves(this)
-    ChessPieceType.Bishop -> bishopMovesGenerator.generateMoves(this)
-    ChessPieceType.Rook -> rookMovesGenerator.generateMoves(this)
-    ChessPieceType.Queen -> queenMovesGenerator.generateMoves(this)
-    ChessPieceType.King -> kingMovesGenerator.generateMoves(this)
+    ChessPieceType.Pawn -> pawnMovesGenerator.generate(this)
+    ChessPieceType.Knight -> knightMovesGenerator.generate(this)
+    ChessPieceType.Bishop -> bishopMovesGenerator.generate(this)
+    ChessPieceType.Rook -> rookMovesGenerator.generate(this)
+    ChessPieceType.Queen -> queenMovesGenerator.generate(this)
+    ChessPieceType.King -> kingMovesGenerator.generate(this)
   }
 
   private fun createMoveGeneratorContext(

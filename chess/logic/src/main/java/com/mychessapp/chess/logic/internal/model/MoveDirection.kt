@@ -37,16 +37,17 @@ internal fun ChessFieldPosition.moved(
 
 internal infix fun MoveDirection.steps(steps: Int) = PositionShift(this, steps)
 
-internal fun ChessFieldPosition.moved(shift: PositionShift) =
-  with(shift) {
-    when (direction) {
-      MoveDirection.Down -> moved(down = shift.steps)
-      MoveDirection.Left -> moved(left = steps)
-      MoveDirection.Up -> moved(up = steps)
-      MoveDirection.Right -> moved(right = steps)
-      MoveDirection.DownLeft -> moved(down = steps, left = steps)
-      MoveDirection.DownRight -> moved(down = steps, right = steps)
-      MoveDirection.UpLeft -> moved(up = steps, left = steps)
-      MoveDirection.UpRight -> moved(up = steps, right = steps)
-    }
-  }
+internal fun ChessFieldPosition.moved(direction: MoveDirection, steps: Int) = when (direction) {
+  MoveDirection.Down -> moved(down = steps)
+  MoveDirection.Left -> moved(left = steps)
+  MoveDirection.Up -> moved(up = steps)
+  MoveDirection.Right -> moved(right = steps)
+  MoveDirection.DownLeft -> moved(down = steps, left = steps)
+  MoveDirection.DownRight -> moved(down = steps, right = steps)
+  MoveDirection.UpLeft -> moved(up = steps, left = steps)
+  MoveDirection.UpRight -> moved(up = steps, right = steps)
+}
+
+internal fun ChessFieldPosition.moved(shift: PositionShift) = with(shift) {
+  moved(direction, steps)
+}

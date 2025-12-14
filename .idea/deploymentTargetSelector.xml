@@ -16,12 +16,6 @@
       <SelectionState runConfigName="compose-ui">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="LoadingScreenPreview">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
-      <SelectionState runConfigName="HomeScreenPreview">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="AutoSizePreview">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>

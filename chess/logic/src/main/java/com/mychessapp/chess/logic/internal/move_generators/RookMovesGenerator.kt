@@ -1,17 +1,20 @@
 package com.mychessapp.chess.logic.internal.move_generators
 
+import com.mychessapp.chess.logic.internal.model.ChessMove
 import com.mychessapp.chess.logic.internal.model.MoveDirection
 import com.mychessapp.chess.logic.internal.model.MoveGeneratorContext
+import com.mychessapp.chess.logic.internal.model.PieceMoveGenerator
 import com.mychessapp.chess.logic.internal.model.PieceMoveRange
 import com.mychessapp.core.common.numbers.infinity
 import javax.inject.Inject
 
-internal class RookMovesGenerator @Inject constructor() {
-  fun generateMoves(context: MoveGeneratorContext) = with(context) {
-    rookMoveDirections.flatMap { direction ->
-      getMovesInDirection(direction, rookMoveRange)
+internal class RookMovesGenerator @Inject constructor() : PieceMoveGenerator {
+  override fun generate(context: MoveGeneratorContext): List<ChessMove> =
+    with(context) {
+      rookMoveDirections.flatMap { direction ->
+        simpleMovesInDirection(direction, rookMoveRange)
+      }
     }
-  }
 }
 
 private val rookMoveRange = PieceMoveRange(Int.infinity)
