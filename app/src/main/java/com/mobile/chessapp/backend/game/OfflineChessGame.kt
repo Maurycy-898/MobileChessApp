@@ -1,20 +1,19 @@
 package com.mobile.chessapp.backend.game
 
-import android.widget.Toast
 import com.mobile.chessapp.backend.game.boardUtils.ChessBoard
-import com.mobile.chessapp.backend.game.boardUtils.PieceColor
+import com.mobile.chessapp.backend.game.boardUtils.PlayerColor
 
 class OfflineChessGame(
-    board: ChessBoard,
-    playerColor: PieceColor = PieceColor.WHITE,
-    oppColor: PieceColor = PieceColor.BLACK,
+  board: ChessBoard,
+  playerColor: PlayerColor = PlayerColor.WHITE,
+  oppColor: PlayerColor = PlayerColor.BLACK,
 ) : ChessGame(board, playerColor, oppColor) {
     override fun prepareOpponentsTurn() {
         boardUI.flip()
     }
 
     override fun surrender() {
-        winner = if (board.activeColor == PieceColor.WHITE) PieceColor.BLACK else PieceColor.WHITE
+        winner = if (board.activeColor == PlayerColor.WHITE) PlayerColor.BLACK else PlayerColor.WHITE
         board.isGameOver = true
     }
 }

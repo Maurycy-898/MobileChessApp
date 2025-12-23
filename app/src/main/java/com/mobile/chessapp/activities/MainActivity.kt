@@ -18,7 +18,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.getValue
 import com.mobile.chessapp.R
 import com.mobile.chessapp.backend.database.DatabaseHandler
-import com.mobile.chessapp.backend.game.boardUtils.PieceColor
+import com.mobile.chessapp.backend.game.boardUtils.PlayerColor
 import com.mobile.chessapp.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -94,14 +94,14 @@ class MainActivity : AppCompatActivity() {
                 DatabaseHandler.database.reference.child("player").removeEventListener(this)
                 val playIntent = Intent(context, GameActivity::class.java)
                 playIntent.putExtra("mode", 1)
-                playIntent.putExtra("color", PieceColor.WHITE.name)
+                playIntent.putExtra("color", PlayerColor.WHITE.name)
                 startActivity(playIntent)
             } else if (player == false && !whitePlayer) {
                 DatabaseHandler.database.reference.child("player").setValue(true)
                 DatabaseHandler.database.reference.child("player").removeEventListener(this)
                 val playIntent = Intent(context, GameActivity::class.java)
                 playIntent.putExtra("mode", 1)
-                playIntent.putExtra("color", PieceColor.BLACK.name)
+                playIntent.putExtra("color", PlayerColor.BLACK.name)
                 startActivity(playIntent)
             }
         }

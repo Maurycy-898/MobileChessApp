@@ -1,13 +1,13 @@
 package com.mobile.chessapp.backend.game
 
 import com.mobile.chessapp.backend.game.boardUtils.ChessBoard
-import com.mobile.chessapp.backend.game.boardUtils.PieceColor
+import com.mobile.chessapp.backend.game.boardUtils.PlayerColor
 import com.mobile.chessapp.backend.game.engineUtils.ChessEngine
 
 class EngineChessGame(
   board: ChessBoard,
-  playerColor: PieceColor = PieceColor.WHITE,
-  oppColor: PieceColor = PieceColor.BLACK,
+  playerColor: PlayerColor = PlayerColor.WHITE,
+  oppColor: PlayerColor = PlayerColor.BLACK,
 ) : ChessGame(board, playerColor, oppColor) {
 
   override fun prepareOpponentsTurn() {

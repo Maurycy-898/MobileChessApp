@@ -6,19 +6,19 @@ import com.google.firebase.database.ktx.getValue
 import com.mobile.chessapp.backend.database.DatabaseHandler
 import com.mobile.chessapp.backend.database.DatabaseMove
 import com.mobile.chessapp.backend.game.boardUtils.ChessBoard
-import com.mobile.chessapp.backend.game.boardUtils.PieceColor
+import com.mobile.chessapp.backend.game.boardUtils.PlayerColor
 import com.mobile.chessapp.backend.game.moveUtils.CastlingMove
 import com.mobile.chessapp.backend.game.moveUtils.ChessMove
 import com.mobile.chessapp.backend.game.moveUtils.EnPassantMove
 import com.mobile.chessapp.backend.game.moveUtils.PromotionMove
 
 class OnlineChessGame(
-    board: ChessBoard,
-    playerColor: PieceColor = PieceColor.WHITE,
-    oppColor: PieceColor = PieceColor.BLACK,
-    private var color: PieceColor,
-    @Transient var onGameOver: () -> Unit,
-    @Transient var refreshBoard: () -> Unit
+  board: ChessBoard,
+  playerColor: PlayerColor = PlayerColor.WHITE,
+  oppColor: PlayerColor = PlayerColor.BLACK,
+  private var color: PlayerColor,
+  @Transient var onGameOver: () -> Unit,
+  @Transient var refreshBoard: () -> Unit
 ) : ChessGame(board, playerColor, oppColor) {
 
     private var newGameRefKey: String? = null
@@ -26,7 +26,7 @@ class OnlineChessGame(
     init {
         val gamesRef = DatabaseHandler.database.getReference("games")
         var newGameRef: DatabaseReference
-        if (color == PieceColor.WHITE) {
+        if (color == PlayerColor.WHITE) {
             newGameRef = gamesRef.push()
             DatabaseHandler.database.getReference("newGameRefKey").setValue(newGameRef.key)
             newGameRefKey = newGameRef.key
@@ -136,8 +136,8 @@ class OnlineChessGame(
     override fun surrender() {
         val newGameRef = DatabaseHandler.database.getReference("games").child(newGameRefKey!!)
         board.isGameOver = true
-        winner = if (color == PieceColor.WHITE) PieceColor.BLACK else PieceColor.WHITE
+        winner = if (color == PlayerColor.WHITE) PlayerColor.BLACK else PlayerColor.WHITE
         newGameRef.child("winner")
-            .setValue(if (color == PieceColor.WHITE) "BLACK" else "WHITE")
+            .setValue(if (color == PlayerColor.WHITE) "BLACK" else "WHITE")
     }
 }

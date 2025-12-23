@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mobile.chessapp.R
 import com.mobile.chessapp.backend.game.*
 import com.mobile.chessapp.backend.game.boardUtils.ChessBoard
-import com.mobile.chessapp.backend.game.boardUtils.PieceColor
+import com.mobile.chessapp.backend.game.boardUtils.PlayerColor
 import com.mobile.chessapp.ui.adapters.GameAdapter
 import com.mobile.chessapp.ui.adapters.OnFieldClick
 
@@ -40,7 +40,7 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
                 0 -> OfflineChessGame(ChessBoard())
                 1 -> OnlineChessGame(
                     ChessBoard(),
-                    color = PieceColor.valueOf(intent.getStringExtra("color")!!),
+                    color = PlayerColor.valueOf(intent.getStringExtra("color")!!),
                     onGameOver = { onGameOver() },
                     refreshBoard = { boardAdapter.notifyDataSetChanged() }
                 )
@@ -82,7 +82,7 @@ class GameActivity : AppCompatActivity(), OnFieldClick {
     }
 
     private fun onGameOver() {
-        if (chessGame.winner == PieceColor.WHITE || chessGame.board.blackKingAttacked) {
+        if (chessGame.winner == PlayerColor.WHITE || chessGame.board.blackKingAttacked) {
             showGameOverDialog("GAME OVER, WHITE WON!!!")
         } else {
             showGameOverDialog("GAME OVER, BLACK WON!!!")

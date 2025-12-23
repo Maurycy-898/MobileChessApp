@@ -25,7 +25,7 @@ class ChessBoard : java.io.Serializable {
     var blackKingAttacked = false
 
     var isGameOver: Boolean = false
-    var activeColor = PieceColor.WHITE
+    var activeColor = PlayerColor.WHITE
     val fields = Array(BOARD_SIZE) {
         Array<ChessPiece?>(BOARD_SIZE) { null }
     }
@@ -69,20 +69,20 @@ class ChessBoard : java.io.Serializable {
         else if (move is CastlingMove) {
             if (move.endCol == 2 && move.endRow == 0) {
                 fields[0][0] = null; fields[4][0] = null
-                fields[3][0] = ChessPiece(PieceType.ROOK, PieceColor.WHITE)
-                fields[2][0] = ChessPiece(PieceType.KING, PieceColor.WHITE)
+                fields[3][0] = ChessPiece(PieceType.ROOK, PlayerColor.WHITE)
+                fields[2][0] = ChessPiece(PieceType.KING, PlayerColor.WHITE)
             } else if (move.endCol == 6 && move.endRow == 0) {
                 fields[7][0] = null; fields[4][0] = null
-                fields[5][0] = ChessPiece(PieceType.ROOK, PieceColor.WHITE)
-                fields[6][0] = ChessPiece(PieceType.KING, PieceColor.WHITE)
+                fields[5][0] = ChessPiece(PieceType.ROOK, PlayerColor.WHITE)
+                fields[6][0] = ChessPiece(PieceType.KING, PlayerColor.WHITE)
             } else if (move.endCol == 2 && move.endRow == 7) {
                 fields[0][7] = null; fields[4][7] = null
-                fields[3][7] = ChessPiece(PieceType.ROOK, PieceColor.BLACK)
-                fields[2][7] = ChessPiece(PieceType.KING, PieceColor.BLACK)
+                fields[3][7] = ChessPiece(PieceType.ROOK, PlayerColor.BLACK)
+                fields[2][7] = ChessPiece(PieceType.KING, PlayerColor.BLACK)
             } else if (move.endCol == 6 && move.endRow == 7) {
                 fields[7][7] = null; fields[4][7] = null
-                fields[5][7] = ChessPiece(PieceType.ROOK, PieceColor.BLACK)
-                fields[6][7] = ChessPiece(PieceType.KING, PieceColor.BLACK)
+                fields[5][7] = ChessPiece(PieceType.ROOK, PlayerColor.BLACK)
+                fields[6][7] = ChessPiece(PieceType.KING, PlayerColor.BLACK)
             }
         }
         else {
@@ -111,25 +111,25 @@ class ChessBoard : java.io.Serializable {
             blackKingsideCastling = false
         }
 
-        if (movedPiece?.type == PieceType.KING && movedPiece.color == PieceColor.WHITE) {
+        if (movedPiece?.type == PieceType.KING && movedPiece.color == PlayerColor.WHITE) {
             whiteKingsideCastling = false
             whiteQueensideCastling = false
             whiteKingCol = move.endCol
             whiteKingRow = move.endRow
         }
-        else if(movedPiece?.type == PieceType.KING && movedPiece.color == PieceColor.BLACK) {
+        else if(movedPiece?.type == PieceType.KING && movedPiece.color == PlayerColor.BLACK) {
             blackKingsideCastling = false
             blackQueensideCastling = false
             blackKingCol = move.endCol
             blackKingRow = move.endRow
         }
 
-        if (movedPiece?.type == PieceType.PAWN && movedPiece.color == PieceColor.WHITE && move.endRow - move.beginRow == 2) {
+        if (movedPiece?.type == PieceType.PAWN && movedPiece.color == PlayerColor.WHITE && move.endRow - move.beginRow == 2) {
             enPassantPossible = true
             enPassantTargetCol = move.beginCol
             enPassantTargetRow = move.beginRow+1
         }
-        else if (movedPiece?.type == PieceType.PAWN && movedPiece.color == PieceColor.BLACK && move.endRow - move.beginRow == -2) {
+        else if (movedPiece?.type == PieceType.PAWN && movedPiece.color == PlayerColor.BLACK && move.endRow - move.beginRow == -2) {
             enPassantPossible = true
             enPassantTargetCol = move.beginCol
             enPassantTargetRow = move.beginRow-1
@@ -137,7 +137,7 @@ class ChessBoard : java.io.Serializable {
         else {
             enPassantPossible = false
         }
-        activeColor = if (activeColor == PieceColor.WHITE) PieceColor.BLACK else PieceColor.WHITE
+        activeColor = if (activeColor == PlayerColor.WHITE) PlayerColor.BLACK else PlayerColor.WHITE
         MoveGenerator.generatorSetup(this)
         whiteKingAttacked = MoveGenerator.attacked(whiteKingCol, whiteKingRow)
         blackKingAttacked = MoveGenerator.attacked(blackKingCol, blackKingRow)
@@ -176,22 +176,22 @@ class ChessBoard : java.io.Serializable {
 
         } else if (move is CastlingMove) {
             if (move.endCol == 2 && move.endRow == 0) {
-                fields[0][0] = ChessPiece(PieceType.ROOK, PieceColor.WHITE)
-                fields[4][0] = ChessPiece(PieceType.KING, PieceColor.WHITE)
+                fields[0][0] = ChessPiece(PieceType.ROOK, PlayerColor.WHITE)
+                fields[4][0] = ChessPiece(PieceType.KING, PlayerColor.WHITE)
                 fields[3][0] = null; fields[2][0] = null
 
             } else if (move.endCol == 6 && move.endRow == 0) {
-                fields[7][0] = ChessPiece(PieceType.ROOK, PieceColor.WHITE)
-                fields[4][0] = ChessPiece(PieceType.KING, PieceColor.WHITE)
+                fields[7][0] = ChessPiece(PieceType.ROOK, PlayerColor.WHITE)
+                fields[4][0] = ChessPiece(PieceType.KING, PlayerColor.WHITE)
                 fields[5][0] = null; fields[6][0] = null
 
             } else if (move.endCol == 2 && move.endRow == 7) {
-                fields[0][7] = ChessPiece(PieceType.ROOK, PieceColor.BLACK)
-                fields[4][7] = ChessPiece(PieceType.KING, PieceColor.BLACK)
+                fields[0][7] = ChessPiece(PieceType.ROOK, PlayerColor.BLACK)
+                fields[4][7] = ChessPiece(PieceType.KING, PlayerColor.BLACK)
                 fields[3][7] = null; fields[2][7] = null
             } else if (move.endCol == 6 && move.endRow == 7) {
-                fields[7][7] = ChessPiece(PieceType.ROOK, PieceColor.BLACK)
-                fields[4][7] = ChessPiece(PieceType.KING, PieceColor.BLACK)
+                fields[7][7] = ChessPiece(PieceType.ROOK, PlayerColor.BLACK)
+                fields[4][7] = ChessPiece(PieceType.KING, PlayerColor.BLACK)
                 fields[5][7] = null; fields[6][7] = null
             }
         } else {
@@ -200,34 +200,34 @@ class ChessBoard : java.io.Serializable {
             fields[move.beginCol][move.beginRow] = movedPiece
         }
         if (isGameOver) isGameOver = false // undo move = undo final result
-        activeColor = if (activeColor == PieceColor.WHITE) PieceColor.BLACK else PieceColor.WHITE
+        activeColor = if (activeColor == PlayerColor.WHITE) PlayerColor.BLACK else PlayerColor.WHITE
     }
 
 
     private fun setupBoard() {
-        activeColor = PieceColor.WHITE
+        activeColor = PlayerColor.WHITE
         for (i in 0 until BOARD_SIZE) {
-            fields[i][1] = ChessPiece(PieceType.PAWN, PieceColor.WHITE)
-            fields[i][6] = ChessPiece(PieceType.PAWN, PieceColor.BLACK)
+            fields[i][1] = ChessPiece(PieceType.PAWN, PlayerColor.WHITE)
+            fields[i][6] = ChessPiece(PieceType.PAWN, PlayerColor.BLACK)
         }
 
-        fields[0][0] = ChessPiece(PieceType.ROOK, PieceColor.WHITE)
-        fields[1][0] = ChessPiece(PieceType.KNIGHT, PieceColor.WHITE)
-        fields[2][0] = ChessPiece(PieceType.BISHOP, PieceColor.WHITE)
-        fields[3][0] = ChessPiece(PieceType.QUEEN, PieceColor.WHITE)
-        fields[4][0] = ChessPiece(PieceType.KING, PieceColor.WHITE)
-        fields[5][0] = ChessPiece(PieceType.BISHOP, PieceColor.WHITE)
-        fields[6][0] = ChessPiece(PieceType.KNIGHT, PieceColor.WHITE)
-        fields[7][0] = ChessPiece(PieceType.ROOK, PieceColor.WHITE)
+        fields[0][0] = ChessPiece(PieceType.ROOK, PlayerColor.WHITE)
+        fields[1][0] = ChessPiece(PieceType.KNIGHT, PlayerColor.WHITE)
+        fields[2][0] = ChessPiece(PieceType.BISHOP, PlayerColor.WHITE)
+        fields[3][0] = ChessPiece(PieceType.QUEEN, PlayerColor.WHITE)
+        fields[4][0] = ChessPiece(PieceType.KING, PlayerColor.WHITE)
+        fields[5][0] = ChessPiece(PieceType.BISHOP, PlayerColor.WHITE)
+        fields[6][0] = ChessPiece(PieceType.KNIGHT, PlayerColor.WHITE)
+        fields[7][0] = ChessPiece(PieceType.ROOK, PlayerColor.WHITE)
 
-        fields[0][7] = ChessPiece(PieceType.ROOK, PieceColor.BLACK)
-        fields[1][7] = ChessPiece(PieceType.KNIGHT, PieceColor.BLACK)
-        fields[2][7] = ChessPiece(PieceType.BISHOP, PieceColor.BLACK)
-        fields[3][7] = ChessPiece(PieceType.QUEEN, PieceColor.BLACK)
-        fields[4][7] = ChessPiece(PieceType.KING, PieceColor.BLACK)
-        fields[5][7] = ChessPiece(PieceType.BISHOP, PieceColor.BLACK)
-        fields[6][7] = ChessPiece(PieceType.KNIGHT, PieceColor.BLACK)
-        fields[7][7] = ChessPiece(PieceType.ROOK, PieceColor.BLACK)
+        fields[0][7] = ChessPiece(PieceType.ROOK, PlayerColor.BLACK)
+        fields[1][7] = ChessPiece(PieceType.KNIGHT, PlayerColor.BLACK)
+        fields[2][7] = ChessPiece(PieceType.BISHOP, PlayerColor.BLACK)
+        fields[3][7] = ChessPiece(PieceType.QUEEN, PlayerColor.BLACK)
+        fields[4][7] = ChessPiece(PieceType.KING, PlayerColor.BLACK)
+        fields[5][7] = ChessPiece(PieceType.BISHOP, PlayerColor.BLACK)
+        fields[6][7] = ChessPiece(PieceType.KNIGHT, PlayerColor.BLACK)
+        fields[7][7] = ChessPiece(PieceType.ROOK, PlayerColor.BLACK)
 
         whiteKingCol = 4
         whiteKingRow = 0
@@ -245,17 +245,17 @@ class ChessBoard : java.io.Serializable {
     }
 
 
-    fun getKingCol(color: PieceColor) : Int {
+    fun getKingCol(color: PlayerColor) : Int {
         return when(color) {
-            PieceColor.WHITE -> whiteKingCol
-            PieceColor.BLACK -> blackKingCol
+            PlayerColor.WHITE -> whiteKingCol
+            PlayerColor.BLACK -> blackKingCol
         }
     }
 
-    fun getKingRow(color: PieceColor) : Int {
+    fun getKingRow(color: PlayerColor) : Int {
         return when(color) {
-            PieceColor.WHITE -> whiteKingRow
-            PieceColor.BLACK -> blackKingRow
+            PlayerColor.WHITE -> whiteKingRow
+            PlayerColor.BLACK -> blackKingRow
         }
     }
 }

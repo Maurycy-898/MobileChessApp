@@ -26,7 +26,7 @@ object Evaluator {
 
   private fun positionImpact(piece: ChessPiece, row: Int, column: Int): Int {
     var absRow = row // based on color reverse row to get correct  data from tables
-    if (piece.color == PieceColor.WHITE) {
+    if (piece.color == PlayerColor.WHITE) {
       absRow = BOARD_SIZE - 1 - absRow
     }
     val positionAspectVal: Int = when (piece.type) {

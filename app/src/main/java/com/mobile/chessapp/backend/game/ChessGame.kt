@@ -2,17 +2,15 @@ package com.mobile.chessapp.backend.game
 
 import com.mobile.chessapp.backend.game.boardUtils.BOARD_SIZE
 import com.mobile.chessapp.backend.game.boardUtils.ChessBoard
-import com.mobile.chessapp.backend.game.boardUtils.PieceColor
+import com.mobile.chessapp.backend.game.boardUtils.PlayerColor
 import com.mobile.chessapp.backend.game.moveUtils.ChessMove
 import com.mobile.chessapp.backend.game.moveUtils.MoveGenerator
-import kotlinx.coroutines.runBlocking
 import java.util.*
-import kotlin.concurrent.thread
 
 abstract class ChessGame(
-    var board: ChessBoard,
-    var playerColor: PieceColor = PieceColor.WHITE,
-    var oppColor: PieceColor = PieceColor.BLACK,
+  var board: ChessBoard,
+  var playerColor: PlayerColor = PlayerColor.WHITE,
+  var oppColor: PlayerColor = PlayerColor.BLACK,
 ) : java.io.Serializable {
 
     protected var clickCount: Int =  0
@@ -22,7 +20,7 @@ abstract class ChessGame(
     private var prevRow = NOT_CLICKED
 
     protected var moveArchive = LinkedList<ChessMove>()
-    var winner: PieceColor? = null
+    var winner: PlayerColor? = null
 
     var boardUI: BoardUI = BoardUI(playerColor, board)
     private var possibleMovesMap = Array(BOARD_SIZE) {

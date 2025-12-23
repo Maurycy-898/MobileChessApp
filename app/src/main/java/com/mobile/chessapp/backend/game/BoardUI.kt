@@ -1,6 +1,5 @@
 package com.mobile.chessapp.backend.game
 
-import androidx.annotation.DrawableRes
 import com.mobile.chessapp.R
 import com.mobile.chessapp.backend.game.boardUtils.*
 import com.mobile.chessapp.ui.theme.DARK_FIELD_COLOR
@@ -8,7 +7,7 @@ import com.mobile.chessapp.ui.theme.LIGHT_FIELD_COLOR
 
 
 // Handles ui related to chess board
-class BoardUI(private var playerPOV: PieceColor = PieceColor.WHITE, board: ChessBoard) : java.io.Serializable {
+class BoardUI(private var playerPOV: PlayerColor = PlayerColor.WHITE, board: ChessBoard) : java.io.Serializable {
     var fields = Array(BOARD_SIZE) { col ->
         Array(BOARD_SIZE) { row ->
             val symbol: String = asSymbol(board.fields[col][row])
@@ -33,13 +32,13 @@ class BoardUI(private var playerPOV: PieceColor = PieceColor.WHITE, board: Chess
     }
 
     fun flip() {
-        playerPOV = if (playerPOV == PieceColor.WHITE) PieceColor.BLACK
-        else PieceColor.WHITE
+        playerPOV = if (playerPOV == PlayerColor.WHITE) PlayerColor.BLACK
+        else PlayerColor.WHITE
     }
 
     private fun asSymbol(piece: ChessPiece?) : String {
         if (piece == null) return " "
-        if (piece.color == PieceColor.WHITE) {
+        if (piece.color == PlayerColor.WHITE) {
             return when(piece.type) {
                 PieceType.PAWN   -> "♙"
                 PieceType.KNIGHT -> "♘"
@@ -49,7 +48,7 @@ class BoardUI(private var playerPOV: PieceColor = PieceColor.WHITE, board: Chess
                 PieceType.KING   -> "♔"
             }
         }
-        if (piece.color == PieceColor.BLACK) {
+        if (piece.color == PlayerColor.BLACK) {
             return when(piece.type) {
                 PieceType.PAWN   -> "♟"
                 PieceType.KNIGHT -> "♞"
@@ -64,7 +63,7 @@ class BoardUI(private var playerPOV: PieceColor = PieceColor.WHITE, board: Chess
 
     private fun asImageRes(piece: ChessPiece?) : Int {
         if (piece == null) return FieldUI.EMPTY_FIELD_RES
-        if (piece.color == PieceColor.WHITE) {
+        if (piece.color == PlayerColor.WHITE) {
             return when(piece.type) {
                 PieceType.PAWN   -> R.drawable.chess_plt60
                 PieceType.KNIGHT -> R.drawable.chess_nlt60
@@ -74,7 +73,7 @@ class BoardUI(private var playerPOV: PieceColor = PieceColor.WHITE, board: Chess
                 PieceType.KING   -> R.drawable.chess_klt60
             }
         }
-        if (piece.color == PieceColor.BLACK) {
+        if (piece.color == PlayerColor.BLACK) {
             return when(piece.type) {
                 PieceType.PAWN   -> R.drawable.chess_pdt60
                 PieceType.KNIGHT -> R.drawable.chess_ndt60
@@ -88,12 +87,12 @@ class BoardUI(private var playerPOV: PieceColor = PieceColor.WHITE, board: Chess
     }
 
     private fun translateCol(col: Int) : Int {
-        return if (playerPOV == PieceColor.WHITE) col
+        return if (playerPOV == PlayerColor.WHITE) col
         else (BOARD_SIZE-1 - col)
     }
 
     private fun translateRow(row: Int) : Int {
-        return if (playerPOV == PieceColor.BLACK) row
+        return if (playerPOV == PlayerColor.BLACK) row
         else (BOARD_SIZE-1 - row)
     }
 }
